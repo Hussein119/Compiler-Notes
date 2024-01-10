@@ -503,4 +503,313 @@ print a;
 
 10. Functions
 
+- An _argument_ is an actual value you pass to a function when you call it.
+
+- A _parameter_ is a variable that holds the value of the argument inside the body of the function.
+
+```c
+makeBreakfast(bacon, eggs, toast);
+
+makeBreakfast();
+
+// a and b called parameters
+fun printSum(a, b) {
+    print a + b;
+}
+
+// 1 and 2 called arguments
+printSum(1,2);
+```
+
+> Closures
+
+```js
+fun addPair(a, b) {
+return a + b;
+}
+
+fun identity(a) {
+return a;
+}
+print identity(addPair)(1, 2); // Prints "3".
+
+fun outerFunction() {
+    fun localFunction() {
+        print "I'm local!";
+    }
+    localFunction();
+}
+
+fun returnFunction() {
+    var outside = "outside";
+    fun inner() {
+    print outside;
+    }
+    return inner;
+}
+var fn = returnFunction();
+fn();
+```
+
+11. Classes
+
+```c
+class Breakfast {
+    // var x = 5; // this is not allowed in lox
+    cook() {
+        print "Eggs a-fryin'!";
+    }
+    serve(who) {
+        print "Enjoy your breakfast, " + who + ".";
+    }
+}
+
+// Store it in variables.
+var someVariable = Breakfast;
+// Pass it to functions.
+someFunction(Breakfast);
+
+var breakfast = Breakfast();
+print breakfast; // "Breakfast instance".
+```
+
+> Inheritance: using a less-than (<) operator
+
+```c
+class Brunch < Breakfast {
+    drink() {
+        print "How about a Bloody Mary?";
+    }
+}
+
+var benedict = Brunch("ham", "English muffin");
+benedict.serve("Noble Reader");
+
+class Brunch < Breakfast {
+    init(meat, bread, drink) {
+        super.init(meat, bread);
+        this.drink = drink;
+    }
+}
+```
+
+> The Standard Library : built-in function clock() that returns the number of seconds since the program started.
+
 ### CHALLENGES
+
+1. Write some sample Lox programs and run them (you can use the implementations of Lox in my repository). Try to come up with edge case behavior I didn’t specify here. Does it do what you expect? Why or why not?
+
+```js
+/*
+fun makeCounter() {
+  var i = 0;
+  fun count() {
+    i = i + 1;
+    print i;
+  }
+
+  return count;
+}
+
+//fun scope(a) {
+//  print a; // parameter
+//  var a = "local";
+//  print a; // local
+//}
+
+fun thrice(fn) {
+  for (var i = 1; i <= 3; i = i + 1) {
+    fn(i);
+  }
+}
+
+thrice(fun (a) {
+  print a;
+});
+// "1".
+// "2".
+// "3".
+
+var counter = makeCounter();
+//counter(); // "1".
+//counter(); // "2".
+
+//scope("parameter");
+
+fun scope(a) {
+  print a;
+  var a = "local";
+  print a;
+}
+
+print 10;
+scope(5);
+
+/*
+
+/*
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+
+  showA();
+  var a = "block";
+  showA();
+  {
+    var a = "block2";
+    showA();
+  }
+  showA();
+}
+*/
+
+/*
+var a = 5;
+
+{
+  print a;
+  var a = a;
+  print a;
+  a = 6;
+  print a;
+}
+*/
+
+
+
+/*
+var a = 5;
+var a = 6;
+print a;
+*/
+
+
+
+/*
+fun bad() {
+var a = "first";
+var a = "second";
+print a;
+}
+
+bad();
+*/
+
+//break;
+
+/*
+while (true) {
+  if (5 > 0 ) {
+    print 6;
+    break;
+  }
+  var a = 6;
+  print a;
+}
+var a = 5;
+print a;
+*/
+
+/*
+while (true) {
+  var a = 6;
+  print a;
+
+  if (5 > 0) {
+    break;
+  }
+}
+
+var a = 5;
+print a;
+*/
+
+/*
+if (a > 1) {
+  print a;
+  break;
+}
+*/
+
+/*
+class DevonshireCream {
+  serveOn() {
+    return "Scones";
+  }
+}
+print DevonshireCream; // Prints "DevonshireCream".
+
+class Bagel {}
+var bagel = Bagel();
+print bagel; // Prints "Bagel instance".
+
+class Bacon {
+  eat() {
+    print "Crunch crunch crunch!";
+  }
+}
+
+Bacon().eat(); // Prints "Crunch crunch crunch!".
+*/
+
+/*
+class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
+  }
+}
+class BostonCream < Doughnut {
+  cook() {
+    var method = super.cook;
+    method();
+    super.cook();
+    print "Pipe full of custard and coat with chocolate.";
+  }
+}
+BostonCream().cook();
+*/
+
+/*
+class A {
+  method() {
+  print "Method A";
+  }
+}
+class B < A {
+  method() {
+    print "Method B";
+  }
+  test() {
+    super.method();
+  }
+}
+class C < B {}
+
+C().test();
+*/
+
+/*
+fun fib(n) {
+  if (n < 2) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+
+var before = clock();
+print fib(40);
+var after = clock();
+print after - before;
+*/
+
+while (true) {
+  if (5 > 0 ) {
+    print 6;
+    break;
+  }
+}
+```
+
+2. This informal introduction leaves a lot unspecified. List several open questions you have about the language’s syntax and semantics. What do you think the answers should be?
+
+3. Lox is a pretty tiny language. What features do you think it is missing that would make it annoying to use for real programs? (Aside from the standard library, of course.)
