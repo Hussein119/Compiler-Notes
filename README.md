@@ -2,7 +2,7 @@
 
 _This compilation highlights key points from each chapter that I deem essential for memorization. Following each chapter, you'll find solutions to the challenges presented, providing a comprehensive understanding of the material._
 
-![Static Badge](https://img.shields.io/badge/Processing-8A2BE2%2CProcessing?label=Status)
+[![Static Badge](https://img.shields.io/badge/Processing-8A2BE2%2CProcessing?label=Status)](https://github.com/Hussein119/Compiler-Nots)
 
 ## Chapter 1 : Introduction
 
@@ -347,3 +347,160 @@ _This compilation highlights key points from each chapter that I deem essential 
 3. Most Lisp implementations that compile to C also contain an interpreter that lets them execute Lisp code on the fly as well. Why?
 
    > to provide a more interactive and flexible development environment
+
+## Chapter 3 : The Lox Language
+
+### NOTES
+
+1. Lox is High-Level Language.
+
+2. Lox is dynamically typed.
+
+3. Automatic memory management
+
+4. There are two main techniques for managing memory: reference counting and tracing garbage collection (usually just called “garbage collection” or “GC”).
+
+5. Data Types:
+
+> Booleans
+
+```c
+true; // Not false.
+false; // Not *not* false.
+```
+
+> Numbers: Lox only has one kind of number: double-precision floating point.
+
+```c
+1234; // An integer.
+12.34; // A decimal number.
+
+.2; // not allowed in lox
+2.; // not allowed in lox
+```
+
+> Strings
+
+```c
+"I am a string";
+""; // The empty string.
+"123"; // This is a string, not a number.
+```
+
+> Nil
+
+```c
+return nil; // similar to returning null in other languages
+```
+
+6. Expressions:
+
+> Arithmetic
+
+```c
+add + me;
+subtract - me;
+multiply * me;
+divide / me;
+
+-negateMe;
+```
+
+> Comparison and equality : 0 in lox is true not false
+
+```c
+less < than;
+lessThan <= orEqual;
+greater > than;
+greaterThan >= orEqual;
+
+1 == 2; // false.
+"cat" != "dog"; // true.
+
+314 == "pi"; // false.
+
+123 == "123"; // false.
+```
+
+- look at this function in the interpreter
+
+```java
+  // the 0 in lox is true not false, if U want it be false edit the function below
+  // < check-operands
+  // > is-truthy
+  private boolean isTruthy(Object object) {
+    if (object == null)
+      return false;
+    if (object instanceof Boolean)
+      return (boolean) object;
+    return true;
+  }
+```
+
+> Logical operators : The reason and and or are like control flow structures is because they short circuit. Not only does and return the left operand if it is false, it doesn’t even evaluate the right one in that case.
+
+```c
+!true; // false.
+!false; // true.
+
+true and false; // false.
+true and true; // true.
+
+false or false; // false.
+true or false; // true.
+```
+
+> Precedence and grouping
+
+```js
+var average = (min + max) / 2;
+```
+
+7. Statements
+
+```c
+print "Hello, world!";
+
+"some expression";
+
+{
+print "One statement.";
+print "Two statements.";
+}
+```
+
+8. Variables
+
+```js
+var imAVariable = "here is my value";
+var iAmNil;
+
+var breakfast = "bagels";
+print breakfast; // "bagels".
+breakfast = "beignets";
+print breakfast; // "beignets".
+```
+
+9. Control Flow
+
+```js
+if (condition) {
+print "yes";
+} else {
+print "no";
+}
+
+var a = 1;
+while (a < 10) {
+print a;
+a = a + 1;
+}
+
+for (var a = 1; a < 10; a = a + 1) {
+print a;
+}
+```
+
+10. Functions
+
+### CHALLENGES
