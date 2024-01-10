@@ -323,6 +323,27 @@ _This compilation highlights key points from each chapter that I deem essential 
 
 11. _Syntax-directed translation_ is a structured technique for building these all-at-once compilers. You associate an action with each piece of the grammar, usually one that generates output code. Then, whenever the parser matches that chunk of syntax, it executes the action, building up the target code one rule at a time.
 
-12.
+12. The fastest way to execute code is by compiling it to machine code, but you might not know what architecture your end user’s machine supports. What to do?
+    > You can do the same thing that the HotSpot _JVM_, _Microsoft’s CLR_ and most
+        *JavaScript interpreters* do. On the end user’s machine, when the program is
+        loaded—either from source in the case of JS, or platform-independent bytecode
+        for the JVM and CLR—you compile it to *native* for the architecture their
+        computer supports. Naturally enough, this is called *just-in-time compilation*.
+        Most hackers just say "JIT".
+13. Compilers and Interpreters
+    - _Compiling_ is an implementation technique that involves translating a source language to some other—usually lower-level—form. When you generate bytecode or machine code, you are compiling. When you transpile to another high-level language you are compiling too.
+    - When we say a language implementation _is a compiler_, we mean it translates source code to some other form but doesn’t execute it.
+    - when we say an implementation “is an interpreter”, we mean it takes in source code and executes it immediately. it runs programs "from source".
+14. CPython is an interpreter, and it has a compiler
 
 ### CHALLENGES
+
+1. Pick an open source implementation of a language you like. Download the source code and poke around in it. Try to find the code that implements the scanner and parser. Are they hand-written, or generated using tools like Lex and Yacc? (.l or .y files usually imply the latter.)
+
+2. Just-in-time compilation tends to be the fastest way to implement a dynamically typed language, but not all of them use it. What reasons are there to not JIT?
+
+   > Complexity, Portability, and Compilation Overhead.
+
+3. Most Lisp implementations that compile to C also contain an interpreter that lets them execute Lisp code on the fly as well. Why?
+
+   > to provide a more interactive and flexible development environment
