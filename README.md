@@ -2,6 +2,8 @@
 
 _This compilation highlights key points from each chapter that I deem essential for memorization. Following each chapter, you'll find solutions to the challenges presented, providing a comprehensive understanding of the material._
 
+![Static Badge](https://img.shields.io/badge/Processing-8A2BE2%2CProcessing?label=Status)
+
 ## Chapter 1 : Introduction
 
 ### NOTES
