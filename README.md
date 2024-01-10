@@ -286,7 +286,7 @@ _This compilation highlights key points from each chapter that I deem essential 
       - ARM
       - SPARC
 
-        > 3 full compilers
+      > 3 full compilers
 
 7.  If we generate real _machine code_, we get an executable that the OS
     can load directly onto the chip. _Native code_ is lightning fast, but generating it is
