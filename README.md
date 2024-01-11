@@ -352,15 +352,13 @@ _This compilation highlights key points from each chapter that I deem essential 
 
 ### NOTES
 
-1. Lox is High-Level Language.
+1. Lox is dynamically typed.
 
-2. Lox is dynamically typed.
+2. Automatic memory management
 
-3. Automatic memory management
+3. There are two main techniques for managing memory: reference counting and tracing garbage collection (usually just called “garbage collection” or “GC”).
 
-4. There are two main techniques for managing memory: reference counting and tracing garbage collection (usually just called “garbage collection” or “GC”).
-
-5. Data Types:
+4. Data Types:
 
 > Booleans
 
@@ -393,7 +391,7 @@ false; // Not *not* false.
 return nil; // similar to returning null in other languages
 ```
 
-6. Expressions:
+5. Expressions:
 
 > Arithmetic
 
@@ -456,7 +454,7 @@ true or false; // true.
 var average = (min + max) / 2;
 ```
 
-7. Statements
+6. Statements
 
 ```c
 print "Hello, world!";
@@ -469,7 +467,7 @@ print "Two statements.";
 }
 ```
 
-8. Variables
+7. Variables
 
 ```js
 var imAVariable = "here is my value";
@@ -481,7 +479,7 @@ breakfast = "beignets";
 print breakfast; // "beignets".
 ```
 
-9. Control Flow
+8. Control Flow
 
 ```js
 if (condition) {
@@ -501,7 +499,7 @@ print a;
 }
 ```
 
-10. Functions
+9. Functions
 
 - An _argument_ is an actual value you pass to a function when you call it.
 
@@ -551,7 +549,7 @@ var fn = returnFunction();
 fn();
 ```
 
-11. Classes
+10. Classes
 
 ```c
 class Breakfast {
@@ -813,3 +811,156 @@ while (true) {
 2. This informal introduction leaves a lot unspecified. List several open questions you have about the language’s syntax and semantics. What do you think the answers should be?
 
 3. Lox is a pretty tiny language. What features do you think it is missing that would make it annoying to use for real programs? (Aside from the standard library, of course.)
+
+## Chapter 4 : Scanning
+
+### NOTES
+
+1. The scanner takes in raw source code as a series of characters and groups it into a series of chunks we call tokens.
+
+2. Lox is a scripting -high level- language, which means it executes directly from source.
+
+3. Each of these blobs of characters is called a lexeme:
+
+![blobs of characters (lexeme)](lexeme.jpg)
+
+4. Note that the ! and = are not two independent operators. You can’t write ! = in Lox and have it behave like an inequality operator.
+
+5. We’ve got another helper:
+
+```java
+private char peek() {
+  if (isAtEnd()) return '\0';
+  return source.charAt(current);
+}
+```
+
+> It’s sort of like advance(), but doesn’t consume the character. This is called **_lookahead_**. Since it only looks at the current unconsumed character, we have one character of lookahead. **_The smaller this number is, generally, the faster the scanner runs._** The rules of the lexical grammar dictate how much lookahead we need. Fortunately, most languages in wide use only peek one or two characters ahead.
+
+#### Mid Qs : What is the lookahead of the scanner ? is it better to have larger or smaller lookaheads ? What is the lookahead of Lox ?
+
+- Lookahead in Scanners:
+
+Meaning: The lookahead of a scanner refers to the number of characters it can examine ahead of its current position without actually consuming them. It aids in making informed decisions about token formation.
+
+- Optimal Size:
+
+Smaller lookaheads (1-2 characters) are generally preferred for efficiency.
+Larger lookaheads might be necessary for certain language constructs but can impact speed.
+
+- Lox's Lookahead
+
+Lox's scanner uses a lookahead of 1 character. This is sufficient for its lexical grammar, as it doesn't have complex constructs that require extensive lookahead.
+
+6. Since we only look for a digit to start a number, that means -123 is not a number literal. Instead, -123, is an expression that applies - to the number literal 123.
+
+```js
+print -123.abs();
+```
+
+> This prints -123 because negation has lower precedence than method calls. We could fix that by making - part of the number literal. But then consider:
+
+```js
+var n = 123;
+print - n.abs();
+```
+
+> This still produces -123, so now the language seems inconsistent. No matter what you do, some case ends up weird.
+
+7. We don’t allow a leading or trailing decimal point, so these are both invalid:
+
+```c
+.1234
+1234.
+```
+
+8. We don't allow this :
+
+```js
+123.sqrt();
+```
+
+9. Consider this in lox:
+
+```js
+var a = 5;
+
+print -a; // -5
+print --a; // 5
+print ---a; // -5
+```
+
+10. ```java
+    case 'o':
+      if (peek() == 'r') {
+        addToken(OR);
+      }
+    break;
+    ```
+
+Consider what would happen if a user named a variable _orchid_. The scanner would see the first two letters, or, and immediately emit an or keyword token. This gets us to an important principle called **_maximal munch_**. _When two lexical grammar rules can both match a chunk of code that the scanner is looking at, whichever one matches the most characters wins._
+
+11. Maximal munch means we can’t easily detect a reserved word until we’ve reached the end of what might instead be an identifier.
+
+### CHALLENGES
+
+1. The lexical grammars of Python and Haskell are not regular. What does that mean, and why aren’t they?
+
+   > A lexical grammar defines the basic building blocks of a programming language, such as tokens (keywords, identifiers, literals, etc.), and specifies how these tokens are combined to form valid programs. The reason why the lexical grammars of Python and Haskell are not regular can be attributed to the expressive power and flexibility that these languages provide.
+
+2. Aside from separating tokens—distinguishing print foo from printfoo — spaces aren’t used for much in most languages. However, in a couple of dark corners, a space does affect how code is parsed in CoffeeScript, Ruby, and the C preprocessor. Where and what effect does it have in each of those languages?
+
+3. Our scanner here, like most, discards comments and whitespace since those aren’t needed by the parser. Why might you want to write a scanner that does not discard those? What would it be useful for?
+
+4. Add support to Lox’s scanner for C-style /\*..... \*/ block comments. Make sure to handle newlines in them. Consider allowing them to nest. Is adding support for nesting more work than you expected? Why?
+
+- Scanner.java
+
+```java
+case '/':
+				if (match('/')) {
+					// A comment goes until the end of the line.
+					while (peek() != '\n' && !isAtEnd())
+						advance();
+				} else if (match('*')) {
+					MultilineComment();
+				} else {
+					addToken(SLASH);
+				}
+				break;
+```
+
+```java
+	private void MultilineComment() {
+
+		int nestLevel = 1;
+
+		while (true) {
+			if (isAtEnd()) {
+				Lox.error(line, "Unterminated multiline comment.");
+				return;
+			}
+
+			if (peek() == '/' && peekNext() == '*') {
+				// Consume the '*' and '/' characters.
+				advance();
+				advance();
+				nestLevel++;
+				return;
+			} else if (peek() == '*' && peekNext() == '/') {
+				advance();
+				advance();
+				nestLevel--;
+
+				if (nestLevel == 0) {
+					return;
+
+				}
+			} else if (peek() == '\n') {
+				line++;
+			}
+
+			advance();
+		}
+	}
+```
