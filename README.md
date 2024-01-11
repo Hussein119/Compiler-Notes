@@ -1253,7 +1253,138 @@ conditional -> equality ;
 
 ### NOTS
 
+1. In Lox, values are created by literals, computed by expressions, and stored in variables.
+
+2. A literal is a bit of syntax that produces a value. A literal always appears somewhere in the user’s source code. Lots of values are produced by computation and don’t exist anywhere in the code itself. Those aren’t literals. A literal comes from the parser’s domain. Values are an interpreter concept, part of the runtime’s world.
+
+3. We can’t evaluate the unary operator itself until after we evaluate its operand subexpression. That means our interpreter is doing a post-order traversal—each node evaluates its children before doing its own work.
+
+4. Lox follows Ruby’s simple rule: false and nil are falsey and everything else is truthy.
+
+5. Runtime errors are failures that the language semantics demand we detect and report while the program is running (hence the name).
+
 ### CHALLENGES
+
+1. Allowing comparisons on types other than numbers could be useful. The operators might have a reasonable interpretation for strings. Even comparisons among mixed types, like 3 < "pancake" could be handy to enable things like ordered collections of heterogeneous types. Or it could simply lead to bugs and confusion. Would you extend Lox to support comparing other types? If so, which pairs of types do you allow and how do you define their ordering? Justify your choices and compare them to other languages.
+
+2. Many languages define + such that if either operand is a string, the other is converted to a string and the results are then concatenated. For example, "scone" + 4 would yield scone4. Extend the code in visitBinaryExpr() to support that.
+
+> edit visitBinaryExpr() function in Interpreter.java
+
+```java
+// < Statements and State visit-assign
+  // > visit-binary
+  @Override
+  public Object visitBinaryExpr(Expr.Binary expr) {
+    Object left = evaluate(expr.left);
+    Object right = evaluate(expr.right); // [left]
+
+    switch (expr.operator.type) {
+      case GREATER:
+        // checkNumberOperands(expr.operator, left, right);
+        // accept compare number with the length of string
+        if (left instanceof Double && right instanceof Double)
+          return (double) left > (double) right;
+        if (left instanceof Double && right instanceof String)
+          return (double) left > right.toString().length();
+        if (left instanceof String && right instanceof Double)
+          return left.toString().length() > (double) right;
+        break;
+      case GREATER_EQUAL:
+        // checkNumberOperands(expr.operator, left, right);
+        // accept compare number with the length of string
+        if (left instanceof Double && right instanceof Double)
+          return (double) left >= (double) right;
+        if (left instanceof Double && right instanceof String)
+          return (double) left >= right.toString().length();
+        if (left instanceof String && right instanceof Double)
+          return left.toString().length() >= (double) right;
+        break;
+      case LESS:
+        // checkNumberOperands(expr.operator, left, right);
+        // accept compare number with the length of string
+        if (left instanceof Double && right instanceof Double)
+          return (double) left < (double) right;
+        if (left instanceof Double && right instanceof String)
+          return (double) left < right.toString().length();
+        if (left instanceof String && right instanceof Double)
+          return left.toString().length() < (double) right;
+        break;
+      case LESS_EQUAL:
+        // checkNumberOperands(expr.operator, left, right);
+        // accept compare number with the length of string
+        if (left instanceof Double && right instanceof Double)
+          return (double) left <= (double) right;
+        if (left instanceof Double && right instanceof String)
+          return (double) left <= right.toString().length();
+        if (left instanceof String && right instanceof Double)
+          return left.toString().length() <= (double) right;
+        break;
+      case BANG_EQUAL:
+        return !isEqual(left, right);
+      case EQUAL_EQUAL:
+        return isEqual(left, right);
+      case MINUS:
+        checkNumberOperands(expr.operator, left, right);
+        return (double) left - (double) right;
+      case PLUS:
+        if (left instanceof Double && right instanceof Double) {
+          return (double) left + (double) right;
+        }
+        if (left instanceof String && right instanceof String) {
+          return (String) left + (String) right;
+        }
+        // make the lox accept add strings with numbers
+        if (left instanceof Double && right instanceof String) {
+          return stringify((Double) left) + (String) right;
+        }
+        if (left instanceof String && right instanceof Double) {
+          return (String) left + stringify((Double) right);
+        }
+        break;
+      // throw new RuntimeError(expr.operator,
+      // "Operands must be two numbers or two strings.");
+      case SLASH:
+        checkNumberOperands(expr.operator, left, right);
+        // handel our own messages on not allowed divisions
+        Object result = (double) left / (double) right;
+        if (result.toString() == "Infinity")
+          return "Division by zero is not allowed";
+        if (result.toString() == "NaN")
+          return "Not a Number";
+        return result;
+      case STAR:
+        // checkNumberOperands(expr.operator, left, right);
+        // return (double) left * (double) right;
+        if (left instanceof Double && right instanceof Double) {
+          return (double) left * (double) right;
+        }
+
+        if (left instanceof Double && right instanceof String) {
+          double repeatCount = (Double) left;
+          if (repeatCount < 0) {
+            throw new RuntimeError(null,
+                "Cannot repeat a string a negative number of times");
+          }
+          StringBuilder starResult = new StringBuilder();
+          for (int i = 0; i < repeatCount; i++) {
+            starResult.append(right);
+          }
+          return starResult.toString();
+        }
+    }
+  }
+```
+
+3. What happens right now if you divide a number by zero? What do you think should happen? Justify your choice. How do other languages you know handle division by zero and why do they make the choices they do? Change the implementation in visitBinaryExpr() to detect and report a runtime error for this case.
+
+> like java and we can change this message in stringify() function
+
+```java
+print 5 /0; // Infinity
+print 0/0; // NaN
+print 0/5; // 0
+```
 
 ## Chapter 8 Statements and State
 
