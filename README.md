@@ -1001,7 +1001,7 @@ case '/':
 
 4. A nonterminal is a named reference to another rule in the grammar.
 
-![grammar](grammar1 ch5.png)
+![grammar](grammar1.png)
 
 5. To perform an operation on a pastry, we call its accept() method and pass in the visitor for the operation we want to execute. The pastry—the specific subclass’s overriding implementation of accept()—turns around and calls the appropriate visit method on the visitor and passes itself to it. That’s the heart of the trick right there.**_ It lets us use polymorphic dispatch on the pastry classes to select the appropriate method on the visitor class._**
 
