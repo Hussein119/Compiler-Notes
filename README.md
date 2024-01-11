@@ -1390,48 +1390,131 @@ print 0/5; // 0
 
 ### NOTS
 
-### CHALLENGES
+1. New syntax means new grammar rules. In this chapter, we finally gain the ability to parse an entire Lox script. Since Lox is an imperative, dynamically typed language, the “top level” of a script is simply a list of statements. The new rules are:
+
+```c
+program → statement* EOF ;
+statement → exprStmt | printStmt ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
+2. To accommodate the distinction, we add another rule for kinds of statements that declare names.
+
+```c
+program → declaration* EOF ;
+declaration → varDecl | statement ;
+statement → exprStmt | printStmt ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
+3. The rule for declaring a variable looks like:
+
+```c
+varDecl → "var" IDENTIFIER ( "=" expression )? ";" ;
+```
+
+4. New Grammar:
+
+```c
+expression → equality ;
+equality → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term → factor ( ( "-" | "+" ) factor )* ;
+factor → unary ( ( "/" | "*" ) unary )* ;
+unary → ( "!" | "-" ) unary | primary ;
+primary → "true" | "false" | "nil" | NUMBER | STRING | "(" expression ")" | IDENTIFIER ;
+```
+
+5. Assignment syntax: assignment is an expression and not a statement
+
+```c
+expression → assignment ;
+assignment → IDENTIFIER "=" assignment | equality ;
+equality → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term → factor ( ( "-" | "+" ) factor )* ;
+factor → unary ( ( "/" | "*" ) unary )* ;
+unary → ( "!" | "-" ) unary | primary ;
+primary → "true" | "false" | "nil" | NUMBER | STRING | "(" expression ")" | IDENTIFIER ;
+```
+
+6. A single token lookahead recursive descent parser can’t see far enough to tell that it’s parsing an assignment until after it has gone through the left-hand side and stumbled onto the =. The difference is that the left-hand side of an assignment isn’t an expression that evaluates to a value. It’s a sort of pseudo-expression that evaluates to a “thing” you can assign to. In:
+
+```js
+var a = "before";
+a = "value";
+```
+
+7. The trick is that right before we create the assignment expression node, we look at the left-hand side expression and figure out what kind of assignment target it is. We convert the r-value expression node into an l-value representation.
+
+8. The last thing the visit() method does is return the assigned value. That’s because assignment is an expression that can be nested inside other expressions, like so:
+
+```js
+var a = 1; // statement
+print a = 2; // "2". expression
+```
+
+9. Lexical scope (or the less commonly heard static scope) is a specific style of scoping where the text of the program itself shows where a scope begins and ends.
+
+10. This is in contrast with dynamic scope where you don’t know what a name refers to until you execute the code. Lox doesn’t have dynamically scoped variables, but methods and fields on objects are dynamically scoped.
+
+11. Look at the block where we calculate the volume of the cuboid using a local declaration of volume. After the block exits, the interpreter will delete the global volume variable. That ain’t right. When we exit the block, we should remove any variables declared inside the block, but if there is a variable with the same name declared outside of the block, that’s a different variable. It doesn’t get touched.
+    When a local variable has the same name as a variable in an enclosing scope, it **shadows** the outer one. Code inside the block can’t see it any more—it is hidden in the “shadow” cast by the inner one—but it’s still there.
+
+12. When we enter a new block scope, we need to preserve variables defined in outer scopes so they are still around when we exit the inner block. We do that by defining a fresh environment for each block containing only the variables defined in that scope. When we exit the block, we discard its environment and restore the previous one.
+    We also need to handle enclosing variables that are not shadowed.
+
+```js
+var global = "outside";
+{
+var local = "inside";
+print global + " " + local; // outside inside
+}
+```
+
+The interpreter must search not only the current innermost environment, but also any enclosing ones.
+
+13. Block syntax and semantics:
+
+```c
+program → declaration* EOF ;
+declaration → varDecl | statement ;
+statement → exprStmt | printStmt | block ;
+block → "{" declaration* "}" ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
+A block is a (possibly empty) series of statements or declarations surrounded by curly braces. A block is itself a statement and can appear anywhere a statement is allowed. It contains the list of statements that are inside the block. Parsing is straightforward.
 
 ## Chapter 9 Control Flow
 
 ### NOTS
 
-### CHALLENGES
-
 ## Chapter 10 Functions
 
 ### NOTS
-
-### CHALLENGES
 
 ## Chapter 11: Resolving and Binding
 
 ### NOTS
 
-### CHALLENGES
-
 ## Chapter 12: Classes
 
 ### NOTS
-
-### CHALLENGES
 
 ## Chapter 13: Inheritance
 
 ### NOTS
 
-### CHALLENGES
-
 ## Chapter 14: Chunks of Bytecode
 
 ### NOTS
 
-### CHALLENGES
-
 ## Chapter 15: A Virtual Machine
 
 ### NOTS
-
-### CHALLENGES
 
 ## Midterm Exam
