@@ -1070,7 +1070,184 @@ to RPN, and returns the resulting string.
 
 ### NOTS
 
+1. Precedence determines which operator is evaluated first in an expression containing a mixture of different operators. Precedence rules tell us that we evaluate the / before the -. Operators with higher precedence are evaluated before operators with lower precedence. Equivalently, higher precedence operators are said to "bind tighter".
+
+2. Associativity determines which operator is evaluated first in a series of the same operator. When an operator is left-associative (think “left-to-right”), operators on the left evaluate before those on the right. Since - is left associative, this expression:
+
+```c
+5 - 3 - 1
+```
+
+is equivalent to:
+
+```c
+(5 - 3) - 1
+```
+
+Assignment, on the other hand, is _right-associative_. This:
+
+```c
+a = b = c
+```
+
+is equivalent to:
+
+```c
+a = (b = c)
+```
+
+![Associates](Associates.png)
+
+We fix that by stratifying the grammar. We define a separate rule for each
+precedence level.
+
+```c
+expression → ...
+equality → ...
+comparison → ...
+term → ...
+factor → ...
+unary → ...
+primary → ...
+```
+
+left-recursive problem:
+
+```c
+factor → factor ( "/" | "*" ) unary | unary ;
+```
+
+This rule is correct, but not optimal for how we
+intend to parse it. Instead of a left recursive rule, we’ll use a different one.
+
+```c
+factor → unary ( ( "/" | "*" ) unary )* ;
+```
+
+3. New Grammar:
+
+```c
+expression → equality ;
+equality → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term → factor ( ( "-" | "+" ) factor )* ;
+factor → unary ( ( "/" | "*" ) unary )* ;
+unary → ( "!" | "-" ) unary | primary ;
+primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+```
+
+This grammar is more complex than the one we had before, but in return we
+have eliminated the previous one’s ambiguity. It’s just what we need to make a
+parser.
+
+4. What parsing algorithm is used for Lox ?
+
+   > Recursive Descent, It’s called “recursive descent” because it walks down the grammar.
+
+5. In a top-down parser, you reach the lowest-precedence expressions first because they may in turn contain subexpressions of higher precedence.
+   ![top-down parser](crafting-interpreters.jpg)
+
+6. Recursive descent is the simplest way to build a parser, and doesn’t require using complex parser generator tools like Yacc, Bison or ANTLR.
+
+7. Recursive descent parsers are fast, robust, and can support sophisticated errorhandling. In fact, GCC, V8 (the JavaScript VM in Chrome), Roslyn (the C# compiler written in C#) and many other heavyweight production language implementations use recursive descent.
+
+8. Recursive descent is considered a top-down parser because it starts from the top or outermost grammar rule (here expression) and works its way down into the nested subexpressions before finally reaching the leaves of the syntax tree. This is in contrast with bottom-up parsers like LR that start with primary expressions and compose them into larger and larger chunks of syntax.
+
+9. A recursive descent parser is a literal translation of the grammar’s rules straight
+   into imperative code. Each rule becomes a function.
+
+10. The “recursive” part of recursive descent is because when a grammar rule refers to itself—directly or indirectly—that translates to a recursive function call.
+
+11. A parser really has two jobs:
+
+    1. Given a valid sequence of tokens, produce a corresponding syntax tree.
+    2. Given an invalid sequence of tokens, detect any errors and tell the user about their mistakes.
+
+12. There are a couple of hard requirements for when the parser runs into a syntax error:
+
+    1. It must detect and report the error. If it doesn’t detect the error and passes the resulting malformed syntax tree on to the interpreter, all manner of horrors may be summoned.
+    2. It must not crash or hang. Syntax errors are a fact of life and language tools have to be robust in the face of them. Segfaulting or getting stuck in an infinite loop isn’t allowed. While the source may not be valid code, it’s still a valid input to the parser because users use the parser to learn what syntax is allowed.
+
+13. A decent parser should:
+
+    1. Be fast.
+    2. Report as many distinct errors as there are.
+    3. Minimize cascaded errors.
+
+14. Of all the recovery techniques devised in yesteryear, the one that best stood the test of time is called—somewhat alarmingly—panic mode. As soon as the parser detects an error, it enters panic mode. It knows at least one token doesn’t make sense given its current state in the middle of some stack of grammar productions.
+    Before it can get back to parsing, it needs to get its state and the sequence of
+    forthcoming tokens aligned such that the next token does match the rule being
+    parsed. This process is called **synchronization**.
+    To do that, we select some rule in the grammar that will mark the synchronization point. The parser fixes its parsing state by jumping out of any nested productions until it gets back to that rule. Then it synchronizes the token stream by discarding tokens until it reaches one that can appear at that point in the rule.
+
 ### CHALLENGES
+
+1. In C, a block is a statement form that allows you to pack a series of statements where a single one is expected. The comma operator is an analogous syntax for expressions. A comma-separated series of expressions can be given where a single expression is expected (except inside a function call’s argument list). At runtime, the comma operator evaluates the le! operand and discards the result. Then it evaluates and returns the right operand. Add support for comma expressions. Give them the same precedence and associativity as in C. Write the grammar, and then implement the necessary parsing code.
+
+> Grammar for Comma Expressions:
+
+```c
+expression -> equality ;
+equality -> comma ;
+comma -> comparison ( "," comparison ) ;
+```
+
+```java
+  private Expr comma() {
+    Expr expr = comparison();
+
+    while (match(COMMA)) {
+      Token operator = previous();
+      Expr right = comparison();
+      expr = new Expr.Binary(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+```
+
+2. Likewise, add support for the C-style conditional or “ternary” operator ?:. What precedence level is allowed between the ? and :? Is the whole operator left associative or right-associative?
+
+> Grammar for Ternary Operator:
+
+```c
+expression -> conditional ;
+conditional -> equality ;
+```
+
+> add this class to GenerateAst :
+> "Conditional : Expr condition, Expr thenBranch, Expr elseBranch"
+
+> add this function to AstPrinter
+
+```java
+  @Override
+  public String visitConditionalExpr(Expr.Conditional expr) {
+    return parenthesize2("?", expr.condition, ":", expr.thenBranch, expr.elseBranch);
+  }
+```
+
+> update the scanner and the need operators
+
+> in Parser.java
+
+```java
+  private Expr conditional() {
+    Expr expr = equality();
+
+    if (match(QUESTION)) {
+      Expr thenBranch = expression();
+      consume(COLON, "Expect ':' after 'then' branch in conditional expression.");
+      Expr elseBranch = conditional();
+      expr = new Expr.Conditional(expr, thenBranch, elseBranch);
+    }
+
+    return expr;
+  }
+```
+
+3. Add error productions to handle each binary operator appearing without a left hand operand. In other words, detect a binary operator appearing at the beginning of an expression. Report that as an error, but also parse and discard a right-hand operand with the appropriate precedence.
 
 ## Chapter 7 Evaluating Expressions
 
