@@ -6,10 +6,10 @@ _This compilation highlights key points from each chapter that I deem essential 
 
 ## Table of Contents
 
-- [Chapter 1 : Introduction](#chapter-1-:-introduction)
-- [Chapter 2 : A Map of the Territory](#chapter-2-:-a-map-of-the-territory)
-- [Chapter 3 : The Lox Language](#chapter-3-:-the-lox-language)
-- [Chapter 4 : Scanning](#chapter-4-:-scanning)
+- [Chapter 1: Introduction](#chapter-1-introduction)
+- [Chapter 2: A Map of the Territory](#chapter-2-a-map-of-the-territory)
+- [Chapter 3: The Lox Language](#chapter-3-the-lox-language)
+- [Chapter 4: Scanning](#chapter-4-scanning)
 
 ## Chapter 1 : Introduction
 
