@@ -11,7 +11,7 @@ _This compilation highlights key points from each chapter that I deem essential 
 - [Chapter 3: The Lox Language](#chapter-3-the-lox-language)
 - [Chapter 4: Scanning](#chapter-4-scanning)
 
-## Chapter 1 : Introduction
+## Chapter 1 Introduction
 
 ### NOTES
 
@@ -209,7 +209,7 @@ _This compilation highlights key points from each chapter that I deem essential 
     .\doubly-linked-list
    ```
 
-## Chapter 2 : A Map of the Territory
+## Chapter 2 A Map of the Territory
 
 ### NOTES
 
@@ -355,7 +355,7 @@ _This compilation highlights key points from each chapter that I deem essential 
 
    > to provide a more interactive and flexible development environment
 
-## Chapter 3 : The Lox Language
+## Chapter 3 The Lox Language
 
 ### NOTES
 
@@ -819,7 +819,7 @@ while (true) {
 
 3. Lox is a pretty tiny language. What features do you think it is missing that would make it annoying to use for real programs? (Aside from the standard library, of course.)
 
-## Chapter 4 : Scanning
+## Chapter 4 Scanning
 
 ### NOTES
 
