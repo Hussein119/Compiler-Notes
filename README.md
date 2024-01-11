@@ -2,7 +2,12 @@
 
 _This compilation highlights key points from each chapter that I deem essential for memorization. Following each chapter, you'll find solutions to the challenges presented, providing a comprehensive understanding of the material._
 
-[![Static Badge](https://img.shields.io/badge/Processing-8A2BE2%2CProcessing?label=Status)](https://github.com/Hussein119/Compiler-Nots)
+[![Static Badge](Processing-8A2BE2,Processing.png)](https://github.com/Hussein119/Compiler-Nots)
+
+## References
+
+- [Crafting Interpreters book](https://craftinginterpreters.com)
+- [Crafting Interpreters Repo](https://github.com/munificent/craftinginterpreters)
 
 ## Table of Contents
 
@@ -10,6 +15,18 @@ _This compilation highlights key points from each chapter that I deem essential 
 - [Chapter 2: A Map of the Territory](#chapter-2-a-map-of-the-territory)
 - [Chapter 3: The Lox Language](#chapter-3-the-lox-language)
 - [Chapter 4: Scanning](#chapter-4-scanning)
+- [Chapter 5: Representing Code](#chapter-5-representing-code)
+- [Chapter 6: Parsing Expressions](#chapter-6-parsing-expressions)
+- [Chapter 7: Evaluating Expressions](#chapter-7-evaluating-expressions)
+- [Chapter 8: Statements and State](#chapter-8-statements-and-state)
+- [Chapter 9: Control Flow](#chapter-9-control-flow)
+- [Chapter 10: Functions](#chapter-10-functions)
+- [Chapter 11: Resolving and Binding](#chapter-11-resolving-and-binding)
+- [Chapter 12: Classes](#chapter-12-classes)
+- [Chapter 13: Inheritance](#chapter-13-inheritance)
+- [Chapter 14: Chunks of Bytecode](#chapter-14-chunks-of-bytecode)
+- [Chapter 15: A Virtual Machine](#chapter-15-a-virtual-machine)
+- [Midterm Exam](#midterm-exam)
 
 ## Chapter 1 Introduction
 
@@ -971,3 +988,142 @@ case '/':
 		}
 	}
 ```
+
+## Chapter 5 Representing Code
+
+### NOTS
+
+1. If you start with the rules, you can use them to generate strings that are in the grammar. Strings created this way are called derivations because each is "derived" from the rules of the grammar.
+
+2. Rules are called productions because they produce strings in the grammar.
+
+3. A terminal is a letter from the grammar’s alphabet.
+
+4. A nonterminal is a named reference to another rule in the grammar.
+
+![grammar](grammar1 ch5.png)
+
+5. To perform an operation on a pastry, we call its accept() method and pass in the visitor for the operation we want to execute. The pastry—the specific subclass’s overriding implementation of accept()—turns around and calls the appropriate visit method on the visitor and passes itself to it. That’s the heart of the trick right there.**_ It lets us use polymorphic dispatch on the pastry classes to select the appropriate method on the visitor class._**
+
+### CHALLENGES
+
+1. Earlier, I said that the |, \*, and + forms we added to our grammar metasyntax were just syntactic sugar. Given this grammar:
+
+   > expr → expr ( "(" ( expr ( "," expr )\* )? ")" | "." IDENTIFIER )+ | IDENTIFIER | NUMBER
+
+Produce a grammar that matches the same language but does not use any of that notational sugar.
+Bonus: What kind of expression does this bit of grammar encode?
+
+2. The Visitor pattern lets you emulate the functional style in an object-oriented language. Devise a complementary pattern for a functional language. It should let you bundle all of the operations on one type together and let you define new types easily. (SML or Haskell would be ideal for this exercise, but Scheme or another Lisp works as well.)
+
+3. In Reverse Polish Notation (RPN), the operands to an arithmetic operator are both placed before the operator, so 1 + 2 becomes 1 2 +. Evaluation proceeds from left to right. Numbers are pushed onto an implicit stack. An arithmetic operator pops the top two numbers, performs the operation, and pushes the result. Thus, this:
+
+```c
+(1 + 2) * (4 - 3)
+```
+
+in RPN becomes:
+
+```c
+1 2 + 4 3 - *
+```
+
+Define a visitor class for our syntax tree classes that takes an expression, converts it
+to RPN, and returns the resulting string.
+
+> change the visitBinaryExpr function in AstPrinter.java from this one :
+
+```java
+  @Override
+  public String visitBinaryExpr(Expr.Binary expr) {
+    return parenthesize(expr.operator.lexeme,
+        expr.left, expr.right);
+  }
+
+    private String parenthesize(String name, Expr... exprs) {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("(").append(name);
+    for (Expr expr : exprs) {
+      builder.append(" ");
+      builder.append(expr.accept(this));
+    }
+    builder.append(")");
+
+    return builder.toString();
+  }
+```
+
+> to this one :
+
+```java
+     @Override
+
+    public String visitBinaryExpr(Expr.Binary expr) {
+        String left = expr.left.accept(this);
+        String right = expr.right.accept(this);
+        return left + " " + right + " " + expr.operator.lexeme;
+    }
+```
+
+## Chapter 6 Parsing Expressions
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 7 Evaluating Expressions
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 8 Statements and State
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 9 Control Flow
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 10 Functions
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 11: Resolving and Binding
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 12: Classes
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 13: Inheritance
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 14: Chunks of Bytecode
+
+### NOTS
+
+### CHALLENGES
+
+## Chapter 15: A Virtual Machine
+
+### NOTS
+
+### CHALLENGES
+
+## Midterm Exam
