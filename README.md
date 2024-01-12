@@ -2,7 +2,7 @@
 
 _This compilation highlights key points from each chapter that I deem essential for memorization. Following each chapter, you'll find solutions to the challenges presented, providing a comprehensive understanding of the material._
 
-[![Static Badge](Processing-8A2BE2,Processing.png)](https://github.com/Hussein119/Compiler-Nots)
+[![Static Badge](imgs/Processing-8A2BE2,Processing.png)](https://github.com/Hussein119/Compiler-Nots)
 
 ## References
 
@@ -35,7 +35,7 @@ _This compilation highlights key points from each chapter that I deem essential 
 1. little languages = domain-specific languages : These are pidgins
    tailor-built to a specific task.
 
-![domain-specific languages](ch1-1.png)
+![domain-specific languages](imgs/ch1-1.png)
 
 2. A compiler reads files in one language. translates them, and outputs files in another
    language. You can implement a compiler in any language, including the same language it
@@ -231,7 +231,7 @@ _This compilation highlights key points from each chapter that I deem essential 
 1.  This book is about a language’s implementation, which is distinct from the language itself in
     some sort of Platonic ideal form. Things like _stack_, _bytecode_, and _recursive descent_, are nuts and bolts one particular implementation might use.
 
-![overall view](overall.jpg)
+![overall view](imgs/overall.jpg)
 
 2.  A scanner (or lexer) takes in the linear stream of characters and chunks them
     together into a series of something more akin to _words_.
@@ -840,7 +840,7 @@ while (true) {
 
 3. Each of these blobs of characters is called a lexeme:
 
-![blobs of characters (lexeme)](lexeme.jpg)
+![blobs of characters (lexeme)](imgs/lexeme.jpg)
 
 4. Note that the ! and = are not two independent operators. You can’t write ! = in Lox and have it behave like an inequality operator.
 
@@ -986,9 +986,9 @@ case '/':
 
 ## Visitor Design Pattern
 
-![](Visitor%20Design%20Pattern_page-0001.jpg)
+![](imgs/Visitor%20Design%20Pattern_page-0001.jpg)
 
-![](Visitor%20Design%20Pattern_page-0002.jpg)
+![](imgs/Visitor%20Design%20Pattern_page-0002.jpg)
 
 ## Chapter 5 Representing Code
 
@@ -1000,7 +1000,7 @@ case '/':
 
 4. A nonterminal is a named reference to another rule in the grammar.
 
-![grammar](grammar1.png)
+![grammar](imgs/grammar1.png)
 
 5. To perform an operation on a pastry, we call its accept() method and pass in the visitor for the operation we want to execute. The pastry—the specific subclass’s overriding implementation of accept()—turns around and calls the appropriate visit method on the visitor and passes itself to it. That’s the heart of the trick right there.**_ It lets us use polymorphic dispatch on the pastry classes to select the appropriate method on the visitor class._**
 
@@ -1093,7 +1093,7 @@ is equivalent to:
 a = (b = c)
 ```
 
-![Associates](Associates.png)
+![Associates](imgs/Associates.png)
 
 We fix that by stratifying the grammar. We define a separate rule for each
 precedence level.
@@ -1143,7 +1143,7 @@ parser.
 
 5. In a top-down parser, you reach the lowest-precedence expressions first because they may in turn contain subexpressions of higher precedence.
 
-![top-down parser](crafting-interpreters.jpg)
+![top-down parser](imgs/crafting-interpreters.jpg)
 
 6. Recursive descent is the simplest way to build a parser, and doesn’t require using complex parser generator tools like Yacc, Bison or ANTLR.
 
@@ -1499,7 +1499,7 @@ printStmt → "print" expression ";" ;
 
 2. Since else clauses are optional, and there is no explicit delimiter marking the end of the if statement, the grammar is ambiguous when you nest ifs in this way. This classic pitfall of syntax is called the **dangling else** problem.
 
-![dangling else](dangling%20else.jpg)
+![dangling else](imgs/dangling%20else.jpg)
 
 It is possible to define a context-free grammar that avoids the ambiguity
 directly, but it requires splitting most of the statement rules into pairs, one that
@@ -1617,7 +1617,7 @@ printStmt → "print" expression ";" ;
 
 5.  That’s why we create a new environment at each call, not at the function declaration. The call() method we saw earlier does that. At the beginning of the call, it creates a new environment. Then it walks the parameter and argument lists in lockstep. For each pair, it creates a new variable with the parameter’s name and binds it to the argument’s value.
 
-![](functionCall.jpg)
+![](imgs/functionCall.jpg)
 
 6.  Return Statements
 
@@ -1711,11 +1711,11 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
    1. First, we have a global variable 'a'
 
-      ![](ch11f1.jpg)
+      ![](imgs/ch11f1.jpg)
 
    2. We enter the block and execute the declaration of `showA()`
 
-      ![](ch11f2.jpg)
+      ![](imgs/ch11f2.jpg)
 
       - We get a new environment for the block.
       - In that, we declare one name `showA`, which is bound to the `LoxFunction` object we create to represent the function.
@@ -1723,7 +1723,7 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
    3. Now we call `showA()`:
 
-      ![](ch11f3.jpg)
+      ![](imgs/ch11f3.jpg)
 
       1. The interpreter dynamically creates a new environment for the function body of `showA()`. It’s empty since that function doesn’t declare any variables.
       2. The parent of that environment is the function’s closure—the outer block environment.
@@ -1732,13 +1732,13 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
    4. We declare the second `a`, this time inside the block:
 
-      ![](ch11f4.jpg)
+      ![](imgs/ch11f4.jpg)
 
       - It’s in the same block—the same scope—as `showA()`, so it goes into the same environment, which is also the same environment `showA()`’s closure refers to.
 
    5. We call `showA()` again:
 
-      ![](ch11f5.jpg)
+      ![](imgs/ch11f5.jpg)
 
       1. We create a new empty environment for the body of `showA()` again, wire it up to that closure, and run the body.
       2. When the interpreter walks the chain of environments to find `a`, it now discovers the new `a` in the block environment (block one).
@@ -1752,7 +1752,7 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
    - Declaring a variable would do the implicit “split” where you have an environment before the variable is declared and one after:
 
-   ![](ch11f6.jpg)
+   ![](imgs/ch11f6.jpg)
 
    - A closure retains a reference to the Environment instance in play when the function was declared. Since **any later declarations in that block would produce new Environment objects, the closure wouldn’t see the new variables and our bug would be fixed.**
 
@@ -1764,11 +1764,11 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
    - we’ll store the resolution in a way that makes the most out of our existing Environment class. Recall how the accesses of a are interpreted in the problematic example:
 
-   ![](ch11f3.jpg)
+   ![](imgs/ch11f3.jpg)
 
    - In the first (correct) evaluation, **we look at three environments in the chain before finding the global declaration of a.** Then, when the inner a is later declared in a block scope, it shadows the global one:
 
-   ![](ch11f7.jpg)
+   ![](imgs/ch11f7.jpg)
 
    - The next look-up walks the chain, finds a in the second environment and stops there. If we could ensure a variable lookup **always walked the same number of links in the environment chain, that would ensure that it found the same variable in the same scope every time.**
 
@@ -1857,7 +1857,7 @@ With the resolver in place, the second invocation of `showA()` consistently outp
    print bagel; // Prints "Bagel instance".
    ```
 
-![](ch12f1.jpg)
+![](imgs/ch12f1.jpg)
 
 3.  Allowing code outside of the class to directly modify an object’s fields goes against the object-oriented credo that a class encapsulates state.
 
@@ -2004,7 +2004,7 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
     - Unlike getters, setters don’t chain. However, the reference to call allows any high precedence expression before the last dot, including any number of getters, as in:
 
-    ![](ch12f2.jpg)
+    ![](imgs/ch12f2.jpg)
 
     **Note** here that only the last part, the .meat is the setter. The .omelette and .filling parts are both get expressions.
 
@@ -2175,17 +2175,17 @@ With the resolver in place, the second invocation of `showA()` consistently outp
       When this program runs, inside the body of test(), this is an instance of C. The superclass of C is B, but that is not where the lookup should start. If it did, we would hit B’s method().
       Instead, lookup should start on the superclass of the class containing the super expression. In this case, since test() is defined inside B, the super expression inside it should start the lookup on B’s superclass—A.
 
-![](ch13f1.jpg)
+![](imgs/ch13f1.jpg)
 
 - Thus, in order to evaluate a super expression, we need access to the superclass of the class definition surrounding the call.
 
 - We can create the environment for the superclass once, when the class definition is executed. Immediately before we define the methods, we super. make a new environment to bind the class’s superclass to the name _Super_
 
-![](ch13f2.jpg)
+![](imgs/ch13f2.jpg)
 
 - When we create the LoxFunction runtime representation for each method, that is the environment they will capture in their closure. Later, when a method is invoked and _this_ is bound, **the superclass environment becomes the parent for the method’s environment**, like so:
 
-![](ch13f3.jpg)
+![](imgs/ch13f3.jpg)
 
 6. The environment where “this” is bound is always right inside the environment where we store “super”.
 
@@ -2201,6 +2201,72 @@ class Eclair {
 ```
 
 ## Chapter 14: Chunks of Bytecode
+
+1. jlox is portable. Our current interpreter is written in Java and runs on any platform Java supports. We could write a new implementation in C using the same approach and compile and run our language on basically every platform under the sun, **but it's not memory-efficient**
+
+2. Targeting native code has been the most efficient option since way back in the early days when engineers actually hand-wrote programs in machine code.
+
+3. **Native code** is a dense series of operations, encoded directly in binary. Each instruction is between one and a few bytes long, and is almost mind-numbingly low level.
+
+4. Compiling to native code are not easy. Most chips in wide use today have sprawling Byzantine architectures with heaps of instructions that accreted over decades. They require sophisticated register allocation, pipelining, and instruction scheduling.
+
+5. If your compiler outputs LLVM’s own special intermediate language, LLVM in turn compiles that to native code for a plethora of architectures.
+
+6. Bytecode :
+
+   - tree-walk interpreter is simple, portable, and slow.
+   - native code is complex and platform specific but fast.
+
+   - **Bytecode sits in the middle.** It retains the portability of a treewalker. It sacrifices some simplicity to get a performance boost in return, though not as fast as going fully native.
+     We write an emulator — a simulated chip written in software that interprets the bytecode one instruction at a time. **(virtual machine (VM))**
+     That emulation layer adds overhead, which is a key reason bytecode is slower than native code. But in return, it gives us portability.
+
+![](imgs/ch14f1.jpg)
+
+7. In our bytecode format, each instruction has a one-byte operation code (universally shortened to opcode).
+
+8. Dynamic arrays provide:
+
+   - Cache-friendly, dense storage.
+   - Constant-time indexed element lookup.
+   - Constant-time appending to the end of the array.
+
+9. In addition to the array itself, we keep two numbers: the number of elements in the array we
+   have allocated (“capacity”) and how many of those allocated entries are actually in use(“count”).
+
+10. if the count is less than the capacity, then there is already available space in the array.
+
+    ![](imgs/ch14f2.jpg)
+
+    - If we have no spare capacity, then the process is a little more involved:
+
+    ![](imgs/ch14f3.jpg)
+
+    1. Allocate a new array with more capacity.
+    2. Copy the existing elements from the old array to the new one.
+    3. Store the new capacity.
+    4. Delete the old array.
+    5. Update code to point to the new array.
+    6. Store the element in the new array now that there is room.
+    7. Update the count.
+
+11. The two size arguments passed to reallocate() control which operation to perform:
+
+    ![](imgs/ch14f4.png)
+
+12. A dis-assembler spits out a textual listing of the instructions.
+
+13. Back to the question of where to store constants in a chunk. For small fixed-size values like integers, many instruction sets store the value directly in the code stream right after the opcode. These are called **immediate instructions** because the bits for the value are immediately after the opcode. That doesn’t work well for large or variable-sized constants like strings. In a native compiler to machine code, those bigger constants get stored in a separate “constant data” region in the binary executable. Then, the instruction to load a constant has an address or offset pointing to where the value is stored in that section. Most virtual machines do something similar. For example, the Java Virtual Machine associates a constant pool with each compiled class. That sounds good enough for clox to me.
+
+14. The constant pool is an array of values.
+
+15. A single bare opcode isn’t enough to know which constant to load. To handle cases like this, our bytecode—like most others—allows instructions to have operands. These are stored as binary data immediately after the opcode in the instruction stream and let us parameterize what the instruction does.
+
+![](imgs/ch14f4.jpg)
+
+Each opcode determines how many operand bytes it has and what they mean.
+
+16. Each number in the array is the line number for the corresponding byte in the bytecode.
 
 ## Chapter 15: A Virtual Machine
 
@@ -2232,7 +2298,7 @@ class Eclair {
 
 3. What is the purpose of this code ? where does it fit in Lox ?
 
-![](mid1.png)
+![](imgs/mid1.png)
 
 **Answer**
 
@@ -2286,7 +2352,7 @@ class Eclair {
 
 8. What is this image trying to say ? give examples...
 
-![](crafting-interpreters.jpg)
+![](imgs/crafting-interpreters.jpg)
 
 **Answer**
 
@@ -2296,7 +2362,7 @@ class Eclair {
 9. 1. What does this code try to achieve ?
    2. Why do we need a loop here ? what if we removed the while statement and executed the loop one time only ?
 
-![](mid2.png)
+![](imgs/mid2.png)
 
 **Answer**
 
