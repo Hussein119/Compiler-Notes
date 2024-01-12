@@ -30,8 +30,6 @@ _This compilation highlights key points from each chapter that I deem essential 
 
 ## Chapter 1 Introduction
 
-### NOTES
-
 1. little languages = domain-specific languages : These are pidgins
    tailor-built to a specific task.
 
@@ -228,8 +226,6 @@ _This compilation highlights key points from each chapter that I deem essential 
 
 ## Chapter 2 A Map of the Territory
 
-### NOTES
-
 1.  This book is about a language’s implementation, which is distinct from the language itself in
     some sort of Platonic ideal form. Things like _stack_, _bytecode_, and _recursive descent_, are nuts and bolts one particular implementation might use.
 
@@ -373,8 +369,6 @@ _This compilation highlights key points from each chapter that I deem essential 
    > to provide a more interactive and flexible development environment
 
 ## Chapter 3 The Lox Language
-
-### NOTES
 
 1. Lox is dynamically typed.
 
@@ -838,8 +832,6 @@ while (true) {
 
 ## Chapter 4 Scanning
 
-### NOTES
-
 1. The scanner takes in raw source code as a series of characters and groups it into a series of chunks we call tokens.
 
 2. Lox is a scripting -high level- language, which means it executes directly from source.
@@ -991,8 +983,6 @@ case '/':
 
 ## Chapter 5 Representing Code
 
-### NOTS
-
 1. If you start with the rules, you can use them to generate strings that are in the grammar. Strings created this way are called derivations because each is "derived" from the rules of the grammar.
 
 2. Rules are called productions because they produce strings in the grammar.
@@ -1067,8 +1057,6 @@ to RPN, and returns the resulting string.
 ```
 
 ## Chapter 6 Parsing Expressions
-
-### NOTS
 
 1. Precedence determines which operator is evaluated first in an expression containing a mixture of different operators. Precedence rules tell us that we evaluate the / before the -. Operators with higher precedence are evaluated before operators with lower precedence. Equivalently, higher precedence operators are said to "bind tighter".
 
@@ -1145,7 +1133,8 @@ parser.
    > Recursive Descent, It’s called “recursive descent” because it walks down the grammar.
 
 5. In a top-down parser, you reach the lowest-precedence expressions first because they may in turn contain subexpressions of higher precedence.
-   ![top-down parser](crafting-interpreters.jpg)
+
+![top-down parser](crafting-interpreters.jpg)
 
 6. Recursive descent is the simplest way to build a parser, and doesn’t require using complex parser generator tools like Yacc, Bison or ANTLR.
 
@@ -1182,7 +1171,7 @@ parser.
 
 ### CHALLENGES
 
-1. In C, a block is a statement form that allows you to pack a series of statements where a single one is expected. The comma operator is an analogous syntax for expressions. A comma-separated series of expressions can be given where a single expression is expected (except inside a function call’s argument list). At runtime, the comma operator evaluates the le! operand and discards the result. Then it evaluates and returns the right operand. Add support for comma expressions. Give them the same precedence and associativity as in C. Write the grammar, and then implement the necessary parsing code.
+1. In C, a block is a statement form that allows you to pack a series of statements where a single one is expected. The comma operator is an analogous syntax for expressions. A comma-separated series of expressions can be given where a single expression is expected (except inside a function call’s argument list). At runtime, the comma operator evaluates the left operand and discards the result. Then it evaluates and returns the right operand. Add support for comma expressions. Give them the same precedence and associativity as in C. Write the grammar, and then implement the necessary parsing code.
 
 > Grammar for Comma Expressions:
 
@@ -1250,8 +1239,6 @@ conditional -> equality ;
 3. Add error productions to handle each binary operator appearing without a left hand operand. In other words, detect a binary operator appearing at the beginning of an expression. Report that as an error, but also parse and discard a right-hand operand with the appropriate precedence.
 
 ## Chapter 7 Evaluating Expressions
-
-### NOTS
 
 1. In Lox, values are created by literals, computed by expressions, and stored in variables.
 
@@ -1388,8 +1375,6 @@ print 0/5; // 0
 
 ## Chapter 8 Statements and State
 
-### NOTS
-
 1. New syntax means new grammar rules. In this chapter, we finally gain the ability to parse an entire Lox script. Since Lox is an imperative, dynamically typed language, the “top level” of a script is simply a list of statements. The new rules are:
 
 ```c
@@ -1458,7 +1443,7 @@ print a = 2; // "2". expression
 
 9. Lexical scope (or the less commonly heard static scope) is a specific style of scoping where the text of the program itself shows where a scope begins and ends.
 
-10. This is in contrast with dynamic scope where you don’t know what a name refers to until you execute the code. Lox doesn’t have dynamically scoped variables, but methods and fields on objects are dynamically scoped.
+10. This is in contrast with dynamic scope where you don’t know what a name refers to until you execute the code. **Lox doesn’t have dynamically scoped variables, but methods and fields on objects are dynamically scoped.**
 
 11. Look at the block where we calculate the volume of the cuboid using a local declaration of volume. After the block exits, the interpreter will delete the global volume variable. That ain’t right. When we exit the block, we should remove any variables declared inside the block, but if there is a variable with the same name declared outside of the block, that’s a different variable. It doesn’t get touched.
     When a local variable has the same name as a variable in an enclosing scope, it **shadows** the outer one. Code inside the block can’t see it any more—it is hidden in the “shadow” cast by the inner one—but it’s still there.
@@ -1490,8 +1475,6 @@ printStmt → "print" expression ";" ;
 A block is a (possibly empty) series of statements or declarations surrounded by curly braces. A block is itself a statement and can appear anywhere a statement is allowed. It contains the list of statements that are inside the block. Parsing is straightforward.
 
 ## Chapter 9 Control Flow
-
-### NOTS
 
 1. Lox doesn’t have a conditional operator, so let’s get our if statement on. Our statement grammar gets a new production.
 
@@ -1563,8 +1546,6 @@ printStmt → "print" expression ";" ;
 
 ## Chapter 10 Functions
 
-### NOTS
-
 1. The thing being called—the callee—can be any expression that evaluates to a function. You can think of a call as sort of like a postfix operator that starts with (. This “operator” has higher precedence than any other operator, even the unary ones. So we slot it into the grammar by having the unary rule bubble up to a new call rule.
 
 ```c
@@ -1623,12 +1604,13 @@ exprStmt → expression ";" ;
 printStmt → "print" expression ";" ;
 ```
 
-4. Core to functions are the idea of parameters, and that a function encapsulates those parameters—no other code outside of the function can see them. This means **each function gets its own environment** where it stores those variables. Further, this environment must be created dynamically. Each function call gets its own environment. Otherwise, recursion would break. If there are multiple calls to the same function in play at the same time, each needs its own environment, even though they are all calls to the same function.
+4.  Core to functions are the idea of parameters, and that a function encapsulates those parameters—no other code outside of the function can see them. This means **each function gets its own environment** where it stores those variables. Further, this environment must be created dynamically. Each function call gets its own environment. Otherwise, recursion would break. If there are multiple calls to the same function in play at the same time, each needs its own environment, even though they are all calls to the same function.
 
-5. ![functionCall] (functionCall.jpg)
-   That’s why we create a new environment at each call, not at the function declaration. The call() method we saw earlier does that. At the beginning of the call, it creates a new environment. Then it walks the parameter and argument lists in lockstep. For each pair, it creates a new variable with the parameter’s name and binds it to the argument’s value.
+5.  That’s why we create a new environment at each call, not at the function declaration. The call() method we saw earlier does that. At the beginning of the call, it creates a new environment. Then it walks the parameter and argument lists in lockstep. For each pair, it creates a new variable with the parameter’s name and binds it to the argument’s value.
 
-6. Return Statements
+![](functionCall.jpg)
+
+6.  Return Statements
 
 ```c
 program → declaration* EOF ;
@@ -1676,22 +1658,158 @@ counter(); // "2".
 
 ## Chapter 11: Resolving and Binding
 
-### NOTS
+1. Without the Resolver:
+
+Prior to implementing the resolver, the given code exhibits a notable issue. When the `showA()` function is invoked inside a block, it surprisingly behaves like dynamic scoping despite our intention of having static scoping. The root cause of this unexpected behavior lies in the closure mechanism introduced in the preceding chapter.
+
+Consider the following problematic code snippet:
+
+```js
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+  showA(); // Prints "global"
+  var a = "block";
+  showA(); // Prints "block"
+}
+```
+
+In the second invocation of `showA()`, it displays "block" instead of adhering to the expected static scoping, which is a deviation caused by the closure.
+
+2. With the Resolver:
+
+After incorporating the resolver, the `showA()` function now consistently adheres to static scoping. The resolver ensures that the function references the global variable `a` regardless of the surrounding block's variable declaration.
+
+Consider the improved code snippet:
+
+```js
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+  showA(); // Prints "global"
+  var a = "block";
+  showA(); // Prints "global"
+}
+```
+
+With the resolver in place, the second invocation of `showA()` consistently outputs "global," addressing the scoping issue observed in the previous version of the code.
+
+3. Let's explain what is happening by our interpreter:
+
+   1. First, we have a global variable 'a'
+
+      ![](ch11f1.jpg)
+
+   2. We enter the block and execute the declaration of `showA()`
+
+      ![](ch11f2.jpg)
+
+      - We get a new environment for the block.
+      - In that, we declare one name `showA`, which is bound to the `LoxFunction` object we create to represent the function.
+      - That object has a `closure` field that captures the environment where the function was declared, so it has a reference back to the environment for the block.
+
+   3. Now we call `showA()`:
+
+      ![](ch11f3.jpg)
+
+      1. The interpreter dynamically creates a new environment for the function body of `showA()`. It’s empty since that function doesn’t declare any variables.
+      2. The parent of that environment is the function’s closure—the outer block environment.
+      3. Inside the body of `showA()`, we print the value of `a`.
+      4. The interpreter looks up `a`’s value by walking the chain of environments. It gets all the way to the global environment before finding it there and printing "global".
+
+   4. We declare the second `a`, this time inside the block:
+
+      ![](ch11f4.jpg)
+
+      - It’s in the same block—the same scope—as `showA()`, so it goes into the same environment, which is also the same environment `showA()`’s closure refers to.
+
+   5. We call `showA()` again:
+
+      ![](ch11f5.jpg)
+
+      1. We create a new empty environment for the body of `showA()` again, wire it up to that closure, and run the body.
+      2. When the interpreter walks the chain of environments to find `a`, it now discovers the new `a` in the block environment (block one).
+
+4. Persistent environments
+
+   - There is a style of programming that uses what are called persistent data structures.
+     persistent data structure can never be directly modified. Instead, any “modification” to an existing structure produces a brand new object that contains all of the original data and the new modification. The original is left unchanged.
+
+   - If we were to apply that technique to Environment, then every time you declared a variable it would return a new environment that contained all of the previously-declared variables along with the one new name.
+
+   - Declaring a variable would do the implicit “split” where you have an environment before the variable is declared and one after:
+
+   ![](ch11f6.jpg)
+
+   - A closure retains a reference to the Environment instance in play when the function was declared. Since **any later declarations in that block would produce new Environment objects, the closure wouldn’t see the new variables and our bug would be fixed.**
+
+5. Semantic Analysis
+
+   - We know static scope means that a variable usage always resolves to the same declaration, which can be determined just by looking at the text. Given that, why are we doing it dynamically every time? Doing so doesn’t just open the hole that leads to our annoying bug, it’s also needlessly slow.
+
+   - A better solution is to resolve each variable use once. Write a chunk of code that inspects the user’s program, finds every variable mentioned, and figures out which declaration each refers to. This process is an example of a semantic analysis. Where a parser only tells if a program is grammatically correct—a syntactic analysis—semantic analysis goes farther and starts to figure out what pieces of the program actually mean. In this case, our analysis will resolve variable bindings. We’ll know not just that an expression is a variable, but which variable it is.
+
+   - we’ll store the resolution in a way that makes the most out of our existing Environment class. Recall how the accesses of a are interpreted in the problematic example:
+
+   ![](ch11f3.jpg)
+
+   - In the first (correct) evaluation, **we look at three environments in the chain before finding the global declaration of a.** Then, when the inner a is later declared in a block scope, it shadows the global one:
+
+   ![](ch11f7.jpg)
+
+   - The next look-up walks the chain, finds a in the second environment and stops there. If we could ensure a variable lookup **always walked the same number of links in the environment chain, that would ensure that it found the same variable in the same scope every time.**
+
+   - To “resolve” a variable usage, we only need to calculate how many “hops” away the declared variable will be in the environment chain.
+
+6. A variable resolution pass
+
+   - After the parser produces the syntax tree, but before the interpreter starts executing it, we’ll do a single walk over the tree to resolve all of the variables it contains.
+
+   - Additional passes between parsing and execution are common. If Lox had static types, we could slide a type checker in there. Optimizations are often implemented in separate passes like this too.
+
+7. static analysis is different from a dynamic execution:
+
+   - **There are no side effects**. When the static analysis visits a print statement, it doesn’t actually print anything. Calls to native functions or other operations that reach out to the outside world are stubbed out and have no effect.
+
+   - **There is no control flow.** Loops are only visited once. Both branches are visited in if statements. **Logic operators are not short-circuited**.
+
+8. A Resolver Class
+
+   The resolver needs to visit every node in the syntax tree, it implements the visitor abstraction we already have in place. Only a few kinds of nodes are interesting when it comes to resolving variables:
+
+   1. A block statement introduces a new scope for the statements it contains.
+
+   2. A function declaration introduces a new scope for its body and binds its parameters in that scope.
+
+   3. A variable declaration adds a new variable to the current scope.
+
+   4. Variable and assignment expressions need to have their variables resolved.
+
+   The rest of the nodes don’t do anything special, but we still need to implement visit methods for them that traverse into their subtrees.
+
+   - The scope stack is only used for local block scopes. Variables declared at the top level in the global scope are not tracked by the resolver since they are more dynamic in Lox. When resolving a variable, if we can’t find it in the stack of local scopes, we assume it must be global.
+
+   - This is a compile error in lox :
+     ```js
+     var a = "outer";
+     {
+       var a = a;
+     }
+     ```
+
+9. Interpreting Resolved Variables
+   Let’s see what our resolver is good for. Each time it visits a variable, it tells the interpreter how many scopes there are between the current scope and the scope where the variable is defined. At runtime, this corresponds exactly to the number of environments between the current one and the enclosing one where the interpreter can find the variable’s value.
 
 ## Chapter 12: Classes
 
-### NOTS
-
 ## Chapter 13: Inheritance
-
-### NOTS
 
 ## Chapter 14: Chunks of Bytecode
 
-### NOTS
-
 ## Chapter 15: A Virtual Machine
-
-### NOTS
 
 ## Midterm Exam
