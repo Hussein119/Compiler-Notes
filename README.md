@@ -2270,6 +2270,60 @@ Each opcode determines how many operand bytes it has and what they mean.
 
 ## Chapter 15: A Virtual Machine
 
+1. The VM will gradually acquire a whole pile of state it needs to keep track of, so we define a struct now to stuff that all in
+
+2. As the VM works its way through the bytecode, it keeps track of where it is— the location of the instruction currently being executed.
+
+   - in struct VM
+
+   ```c
+   uint8_t* ip;
+   ```
+
+3. The name “IP” is traditional, and—unlike many traditional names in CS— actually makes sense: it’s an instruction pointer. Almost every instruction set in the world, real and virtual, has a register or variable like this. The other common name for it is “PC” for “program counter”.
+
+4. The IP always points to the next instruction, not the one currently being handled.
+
+5. The first byte of any instruction is the **opcode**.
+
+6. Given a numeric opcode, we need to get to the right C code that implements that instruction’s semantics. This process is called **decoding** or **dispatching** the instruction.
+
+We do that process for every single instruction, every single time one is
+executed, so this is the most performance critical part of the entire virtual
+machine.
+
+7. A Value Stack Manipulator
+
+   - Here is the syntax tree for the print statement:
+
+     ![](imgs\ch15f1.jpg)
+
+   - Given left-to-right evaluation, and the way the expressions are nested, any correct Lox implementation must print these numbers in this order:
+
+     ```c
+           1 // from echo(1)
+           2 // from echo(2)
+           3 // from echo(1 + 2)
+           4 // from echo(4)
+           5 // from echo(5)
+           9 // from echo(4 + 5)
+           12 // from print 3 + 9
+     ```
+
+     - in clox
+
+     ![](imgs/ch15f2.jpg)
+
+     On the left are the steps of code. On the right are the values we’re tracking. Each bar represents a number. It starts when the value is first produced—either a constant or the result of an addition. The length of the bar tracks when a previously-produced value needs to be kept around, and it ends when that value finally gets consumed by an operation.
+
+     - Once a number is consumed, we allow its column to be reused for another later value
+
+     ![](imgs/ch15f3.jpg)
+
+8. For example, if we compile 3 - 1, the data flow between the instructions looks like so:
+
+   ![](imgs/ch15f4.jpg)
+
 ## Midterm Exam
 
 1. Describe the inputs and outputs of both the scanner and parser
