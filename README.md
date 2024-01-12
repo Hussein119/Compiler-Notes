@@ -1565,6 +1565,115 @@ printStmt → "print" expression ";" ;
 
 ### NOTS
 
+1. The thing being called—the callee—can be any expression that evaluates to a function. You can think of a call as sort of like a postfix operator that starts with (. This “operator” has higher precedence than any other operator, even the unary ones. So we slot it into the grammar by having the unary rule bubble up to a new call rule.
+
+```c
+expression → assignment ;
+assignment → IDENTIFIER "=" assignment | logic_or ;
+logic_or → logic_and ( "or" logic_and )* ;
+logic_and → equality ( "and" equality )* ;
+equality → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term → factor ( ( "-" | "+" ) factor )* ;
+factor → unary ( ( "/" | "*" ) unary )* ;
+unary → ( "!" | "-" ) unary | call ;
+call → primary ( "(" arguments? ")" )* ;
+arguments → expression ( "," expression )* ;
+primary → "true" | "false" | "nil" | NUMBER | STRING | "(" expression ")" | IDENTIFIER ;
+```
+
+This rule matches a primary expression followed by zero or more function calls. If there are no parentheses, this parses a bare primary expression. Otherwise, each call is recognized by a pair of parentheses with an optional list of arguments inside.
+
+**This rule requires at least one argument expression, followed by zero or more other expressions, each preceded by a comma. To handle zero-argument calls, the call rule itself considers the entire arguments production to be optional.**
+
+2. The C standard says a conforming implementation has to support at least 127 arguments to a function, but doesn’t say there’s any upper limit. The Java specification says a method can accept no more than 255 arguments.
+   Our Java interpreter for Lox doesn’t really need a limit, but having a maximum number of arguments will simplify our bytecode interpreter in Part III, so we’ll add the same limit (>= 255) to jlox.
+
+   lox/Parser.java
+   in finishCall()
+
+   ```java
+   do {
+   if (arguments.size() >= 255) {
+      error(peek(), "Can't have more than 255 arguments.");
+    }
+   arguments.add(expression());
+   ```
+
+   **Note that** the code here reports an error if it encounters too many arguments,
+   but it doesn’t throw the error. Throwing is how we kick into panic mode which
+   is what we want if the parser is in a confused state and doesn’t know where it is
+   in the grammar anymore. But here, the parser is still in a perfectly valid state—
+   it just found too many arguments. So it reports the error and keeps on keepin’ on.
+
+3. Function Declarations
+
+```c
+program → declaration* EOF ;
+declaration → funDecl | varDecl | statement ;
+funDecl → "fun" function ;
+function → IDENTIFIER "(" parameters? ")" block ;
+parameters → IDENTIFIER ( "," IDENTIFIER )* ;
+statement → exprStmt | forStmt | ifStmt | printStmt | whileStmt | block ;
+forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+whileStmt → "while" "(" expression ")" statement ;
+ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+block → "{" declaration* "}" ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
+4. Core to functions are the idea of parameters, and that a function encapsulates those parameters—no other code outside of the function can see them. This means **each function gets its own environment** where it stores those variables. Further, this environment must be created dynamically. Each function call gets its own environment. Otherwise, recursion would break. If there are multiple calls to the same function in play at the same time, each needs its own environment, even though they are all calls to the same function.
+
+5. ![functionCall] (functionCall.jpg)
+   That’s why we create a new environment at each call, not at the function declaration. The call() method we saw earlier does that. At the beginning of the call, it creates a new environment. Then it walks the parameter and argument lists in lockstep. For each pair, it creates a new variable with the parameter’s name and binds it to the argument’s value.
+
+6. Return Statements
+
+```c
+program → declaration* EOF ;
+declaration → funDecl | varDecl | statement ;
+funDecl → "fun" function ;
+function → IDENTIFIER "(" parameters? ")" block ;
+parameters → IDENTIFIER ( "," IDENTIFIER )* ;
+statement → exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block ;
+returnStmt → "return" expression? ";" ;
+forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+whileStmt → "while" "(" expression ")" statement ;
+ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+block → "{" declaration* "}" ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
+7. Check this lox code:
+
+```js
+fun procedure() {
+  print "don't return anything";
+}
+var result = procedure(); // don't return anything
+print result; // nil
+```
+
+This means every Lox function must return something, even if it contains no return statements at all. We use nil for this, which is why LoxFunction’s implementation of call() returns null at the end.
+
+8. To make the count() read i we implement the closure. This data structure is called a “closure” because it “closes over” and holds onto the surrounding variables where the function is declared.
+
+```js
+fun makeCounter() {
+  var i = 0;
+  fun count() {
+    i = i + 1;
+    print i;
+  }
+  return count;
+}
+var counter = makeCounter();
+counter(); // "1".
+counter(); // "2".
+```
+
 ## Chapter 11: Resolving and Binding
 
 ### NOTS
