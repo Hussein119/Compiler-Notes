@@ -2119,6 +2119,8 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
 1. Describe the inputs and outputs of both the scanner and parser
 
+   **Answer**
+
    1. **Scanner**
 
    - **Input:** Characters (string)
@@ -2131,6 +2133,8 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
 2. What parsing algorithm is used for Lox ? What is its main features ? give a brief description of it
 
+   **Answer**
+
    1. Recursive Descent
 
    2. Recursive descent parsing is often implemented with predictive parsing, where the parser can predict which production rule to apply based on the current input token. This makes the parsing process more efficient.
@@ -2139,15 +2143,21 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
 3. What is the purpose of this code ? where does it fit in Lox ?
 
-   ![](mid1.png)
+![](mid1.png)
 
-   - This code serves the purpose of generating the `Expr` class to facilitate the implementation of the visitor pattern. By employing this generated class, one can implement specific functions for each class in the interpreter or utilize alternative approaches, similar to how it was done with the resolver. In the context of Lox, this code contributes to building the necessary infrastructure for handling different expression types within the language.
+**Answer**
+
+- This code serves the purpose of generating the `Expr` class to facilitate the implementation of the visitor pattern. By employing this generated class, one can implement specific functions for each class in the interpreter or utilize alternative approaches, similar to how it was done with the resolver. In the context of Lox, this code contributes to building the necessary infrastructure for handling different expression types within the language.
 
 4. Why in C you can’t call a function above the code that defines it unless you have an explicit forward declaration ?
+
+   **Answer**
 
    - In C, the compiler processes the source code in a single pass, meaning it reads the code from top to bottom. When it encounters a function call, it needs to know the function's signature (return type, parameter types) and name. If the function has not been declared or defined yet, the compiler would not have this information.
 
 5. What is the lookahead of the scanner ? is it better to have larger or smaller lookaheads ? What is the lookahead of Lox ?
+
+   **Answer**
 
    1. Lookahead in Scanners:
 
@@ -2168,29 +2178,39 @@ With the resolver in place, the second invocation of `showA()` consistently outp
    1. How many full compilers would you need to write if you wrote each one independenlty ?
    2. What changes if you decided using an intermediate representation ?
 
-      1. 9 full compilers
-      2. number of full compilers will be 3 full compilers
+   **Answer**
+
+   1. 9 full compilers
+   2. number of full compilers will be 3 full compilers
 
 7. In Lox, If you try to perform an operation on values of the wrong type - say, dividing a number by a string -
 
    1. When is the error detected ?
    2. When it is reported ?
    3. This means Lox's type system is static or dynamic or flexible ?
-      1. the error detected at runtime
-      2. error is reported when the code is executed
-      3. dynamic
+
+   **Answer**
+
+   1. the error detected at runtime
+   2. error is reported when the code is executed
+   3. dynamic
 
 8. What is this image trying to say ? give examples...
-   ![](crafting-interpreters.jpg)
 
-   - In a top-down parser, you reach the lowest-precedence expressions first because they may in turn contain subexpressions of higher precedence.
-     Equality is the top of the grammar , it means we start our grammar from it because it has the lowest precedence like we say : if 5 == (5+2) we culc 5+2 first and then we compare it with 5 and like true == !false, !false is a unary it has higher precedence than equality but it comes after it in the grammar. and so on with comparison, addition, and multiplication.
+![](crafting-interpreters.jpg)
 
-9. ![](mid2.png)
+**Answer**
 
-   1. What does this code try to achieve ?
+- In a top-down parser, you reach the lowest-precedence expressions first because they may in turn contain subexpressions of higher precedence.
+  Equality is the top of the grammar , it means we start our grammar from it because it has the lowest precedence like we say : if 5 == (5+2) we culc 5+2 first and then we compare it with 5 and like true == !false, !false is a unary it has higher precedence than equality but it comes after it in the grammar. and so on with comparison, addition, and multiplication.
+
+9. 1. What does this code try to achieve ?
    2. Why do we need a loop here ? what if we removed the while statement and executed the loop one time only ?
 
-      1. this code implements the grammar of equality , the equality has a lower precedence than comparison , if we found a BANG_EQUAL or EQUAL_EQUAL (!= or ==) (the equality) we just return the comparison expr if we found BANG_EQUAL or EQUAL_EQUAL we store the operator token and the right expr and create new binary expr. 5 == 6 like this its a binary expr the right is 6 and the operator token is == and the expr is the 5. may be look like this 25 + 5 /2 == 25 +3/3.
+![](mid2.png)
 
-      2. we need the loop here to match all the operators we have like this 5 == 2 != 3 == 5 , if we used it once we cannot eacute more than one operator.
+**Answer**
+
+1. this code implements the grammar of equality , the equality has a lower precedence than comparison , if we found a BANG_EQUAL or EQUAL_EQUAL (!= or ==) (the equality) we just return the comparison expr if we found BANG_EQUAL or EQUAL_EQUAL we store the operator token and the right expr and create new binary expr. 5 == 6 like this its a binary expr the right is 6 and the operator token is == and the expr is the 5. may be look like this 25 + 5 /2 == 25 +3/3.
+
+2. we need the loop here to match all the operators we have like this 5 == 2 != 3 == 5 , if we used it once we cannot eacute more than one operator.
