@@ -2062,54 +2062,143 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
 ## Chapter 13: Inheritance
 
-1. we’ll use a less than sign (<).
+1.  we’ll use a less than sign (<).
 
-   - BostonCream inherit from Doughnut
+    - BostonCream inherit from Doughnut
 
-   ```js
-   class Doughnut {
-   // General doughnut stuff...
-   }
-   class BostonCream < Doughnut {
-   // Boston Cream-specific stuff...
-   }
-   ```
+    ```js
+    class Doughnut {
+    // General doughnut stuff...
+    }
+    class BostonCream < Doughnut {
+    // Boston Cream-specific stuff...
+    }
+    ```
 
-   - To work this into the grammar, we add a new optional clause in our existing classDecl rule.
+    - To work this into the grammar, we add a new optional clause in our existing classDecl rule.
 
-   ```c
+    ```c
 
-   program → declaration* EOF ;
-   declaration → classDecl | funDecl | varDecl | statement ;
-   classDecl → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
-   funDecl → "fun" function ;
-   function → IDENTIFIER "(" parameters? ")" block ;
-   parameters → IDENTIFIER ( "," IDENTIFIER )* ;
-   statement → exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block ;
-   returnStmt → "return" expression? ";" ;
-   forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
-   whileStmt → "while" "(" expression ")" statement ;
-   ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
-   block → "{" declaration* "}" ;
-   exprStmt → expression ";" ;
-   printStmt → "print" expression ";" ;
+    program → declaration* EOF ;
+    declaration → classDecl | funDecl | varDecl | statement ;
+    classDecl → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
+    funDecl → "fun" function ;
+    function → IDENTIFIER "(" parameters? ")" block ;
+    parameters → IDENTIFIER ( "," IDENTIFIER )* ;
+    statement → exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block ;
+    returnStmt → "return" expression? ";" ;
+    forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+    whileStmt → "while" "(" expression ")" statement ;
+    ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+    block → "{" declaration* "}" ;
+    exprStmt → expression ";" ;
+    printStmt → "print" expression ";" ;
 
-   ```
+    ```
 
-   - After the class name, you can have a < followed by the superclass’s name. The superclass clause is optional because you don’t have to have a superclass. Unlike some other object-oriented languages like Java, Lox has no root “Object” class that everything inherits from, so when you omit the superclass clause, the class has no superclass, not even an implicit one.
+    - After the class name, you can have a < followed by the superclass’s name. The superclass clause is optional because you don’t have to have a superclass. Unlike some other object-oriented languages like Java, Lox has no root “Object” class that everything inherits from, so when you omit the superclass clause, the class has no superclass, not even an implicit one.
 
-   - We want to capture this new syntax in the class declaration’s AST node.
-     tool/GenerateAst.java
-     in main()
+    - We want to capture this new syntax in the class declaration’s AST node.
+      tool/GenerateAst.java
+      in main()
 
-   ```java
-    "Class : Token name, Expr.Variable superclass," +
-    " List<Stmt.Function> methods",
-   ```
+    ```java
+     "Class : Token name, Expr.Variable superclass," +
+     " List<Stmt.Function> methods",
+    ```
 
-   > You might be surprised that we store the superclass name as an **Expr.Variable**, not a **Token**. The grammar restricts the superclass clause to a single identifier, but **at runtime, that identifier is evaluated as a variable access.** Wrapping the name in an Expr.Variable early on in the parser gives us an object that the resolver can hang the resolution information off of.
+    > You might be surprised that we store the superclass name as an **Expr.Variable**, not a **Token**. The grammar restricts the superclass clause to a single identifier, but **at runtime, that identifier is evaluated as a variable access.** Wrapping the name in an Expr.Variable early on in the parser gives us an object that the resolver can hang the resolution information off of.
 
-2. Lox allows class declarations even inside blocks, so it’s possible the superclass name refers to a local variable. In that case, we need to make sure it’s resolved.
+2.  Lox allows class declarations even inside blocks, so it’s possible the superclass name refers to a local variable. In that case, we need to make sure it’s resolved.
+
+3.  If a method with the same name exists in both the subclass and the superclass, the subclass one takes precedence or overrides the superclass method.
+
+    ```js
+    class Doughnut {
+      cook() {
+        print "Fry until golden brown.";
+      }
+    }
+      class BostonCream < Doughnut {
+      cook() {
+        super.cook();
+        print "Pipe full of custard and coat with chocolate.";
+      }
+    }
+    BostonCream().cook();
+    ```
+
+    > Fry until golden brown.
+    > Pipe full of custard and coat with chocolate.
+
+4.  So the new clause we add to the primary rule in our grammar includes the property access as well.
+
+    ```c
+
+    expression → assignment ;
+    assignment → ( call "." )? IDENTIFIER "=" assignment | logic_or;
+    logic_or → logic_and ( "or" logic_and )_ ;
+    logic_and → equality ( "and" equality )_ ;
+    equality → comparison ( ( "!=" | "==" ) comparison )_ ;
+    comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )_ ;
+    term → factor ( ( "-" | "+" ) factor )_ ;
+    factor → unary ( ( "/" | "_" ) unary )_ ;
+    unary → ( "!" | "-" ) unary | call ;
+    call → primary ( "(" arguments? ")" | "." IDENTIFIER )_ ;
+    arguments → expression ( "," expression )\* ;
+    primary → "true" | "false" | "nil" | "this"| NUMBER | STRING | IDENTIFIER | "(" expression ")" | "super" "." IDENTIFIER ;
+
+    ```
+
+5.  Semantics
+
+    ```js
+    class A {
+      method() {
+        print "Method A";
+      }
+    }
+    class B < A {
+      method() {
+        print "Method B";
+      }
+      test() {
+        super.method();
+      }
+    }
+    class C < B {}
+
+    C().test();
+    ```
+
+    - Translate this program to Java, C#, or C++ and it will print “Method A”, which is what we want Lox to do too.
+      When this program runs, inside the body of test(), this is an instance of C. The superclass of C is B, but that is not where the lookup should start. If it did, we would hit B’s method().
+      Instead, lookup should start on the superclass of the class containing the super expression. In this case, since test() is defined inside B, the super expression inside it should start the lookup on B’s superclass—A.
+
+![](ch13f1.jpg)
+
+- Thus, in order to evaluate a super expression, we need access to the superclass of the class definition surrounding the call.
+
+- We can create the environment for the superclass once, when the class definition is executed. Immediately before we define the methods, we super. make a new environment to bind the class’s superclass to the name _Super_
+
+![](ch13f2.jpg)
+
+- When we create the LoxFunction runtime representation for each method, that is the environment they will capture in their closure. Later, when a method is invoked and _this_ is bound, **the superclass environment becomes the parent for the method’s environment**, like so:
+
+![](ch13f3.jpg)
+
+6. The environment where “this” is bound is always right inside the environment where we store “super”.
+
+7. The following code is a error, we use super and the class does not inherits form any super class. We could handle errors like these at runtime by checking to see if the look-up of “super” succeeded. But we can tell statically—just by looking at the source super code—that Eclair has no superclass and thus no expression will work inside it. we’ll report these errors statically, in the resolver.
+
+```js
+class Eclair {
+  cook() {
+    super.cook();
+    print "Pipe full of crème pâtissière.";
+  }
+}
+```
 
 ## Chapter 14: Chunks of Bytecode
 
