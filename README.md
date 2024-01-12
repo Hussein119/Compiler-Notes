@@ -860,6 +860,7 @@ private char peek() {
 - Lookahead in Scanners:
 
 Meaning: The lookahead of a scanner refers to the number of characters it can examine ahead of its current position without actually consuming them. It aids in making informed decisions about token formation.
+`peek()` and `peekNext()` are lookaheads of the scanner
 
 - Optimal Size:
 
@@ -2061,8 +2062,135 @@ With the resolver in place, the second invocation of `showA()` consistently outp
 
 ## Chapter 13: Inheritance
 
+1. we’ll use a less than sign (<).
+
+   - BostonCream inherit from Doughnut
+
+   ```js
+   class Doughnut {
+   // General doughnut stuff...
+   }
+   class BostonCream < Doughnut {
+   // Boston Cream-specific stuff...
+   }
+   ```
+
+   - To work this into the grammar, we add a new optional clause in our existing classDecl rule.
+
+   ```c
+
+   program → declaration* EOF ;
+   declaration → classDecl | funDecl | varDecl | statement ;
+   classDecl → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
+   funDecl → "fun" function ;
+   function → IDENTIFIER "(" parameters? ")" block ;
+   parameters → IDENTIFIER ( "," IDENTIFIER )* ;
+   statement → exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block ;
+   returnStmt → "return" expression? ";" ;
+   forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+   whileStmt → "while" "(" expression ")" statement ;
+   ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+   block → "{" declaration* "}" ;
+   exprStmt → expression ";" ;
+   printStmt → "print" expression ";" ;
+
+   ```
+
+   - After the class name, you can have a < followed by the superclass’s name. The superclass clause is optional because you don’t have to have a superclass. Unlike some other object-oriented languages like Java, Lox has no root “Object” class that everything inherits from, so when you omit the superclass clause, the class has no superclass, not even an implicit one.
+
+   - We want to capture this new syntax in the class declaration’s AST node.
+     tool/GenerateAst.java
+     in main()
+
+   ```java
+    "Class : Token name, Expr.Variable superclass," +
+    " List<Stmt.Function> methods",
+   ```
+
+   > You might be surprised that we store the superclass name as an **Expr.Variable**, not a **Token**. The grammar restricts the superclass clause to a single identifier, but **at runtime, that identifier is evaluated as a variable access.** Wrapping the name in an Expr.Variable early on in the parser gives us an object that the resolver can hang the resolution information off of.
+
+2. Lox allows class declarations even inside blocks, so it’s possible the superclass name refers to a local variable. In that case, we need to make sure it’s resolved.
+
 ## Chapter 14: Chunks of Bytecode
 
 ## Chapter 15: A Virtual Machine
 
 ## Midterm Exam
+
+1. Describe the inputs and outputs of both the scanner and parser
+
+   1. **Scanner**
+
+   - **Input:** Characters (string)
+   - **Output:** Tokens
+
+   2. **Parser**
+
+   - **Input:** Tokens
+   - **Output:** Abstract Syntax Trees (ASTs)
+
+2. What parsing algorithm is used for Lox ? What is its main features ? give a brief description of it
+
+   1. Recursive Descent
+
+   2. Recursive descent parsing is often implemented with predictive parsing, where the parser can predict which production rule to apply based on the current input token. This makes the parsing process more efficient.
+
+   3. Recursive descent is considered a top-down parser because it starts from the top or outermost grammar rule (here expression) and works its way down into the nested subexpressions before finally reaching the leaves of the syntax tree. This is in contrast with bottom-up parsers like LR that start with primary expressions and compose them into larger and larger chunks of syntax. A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. Each rule becomes a function.
+
+3. What is the purpose of this code ? where does it fit in Lox ?
+
+   ![](mid1.png)
+
+   - This code serves the purpose of generating the `Expr` class to facilitate the implementation of the visitor pattern. By employing this generated class, one can implement specific functions for each class in the interpreter or utilize alternative approaches, similar to how it was done with the resolver. In the context of Lox, this code contributes to building the necessary infrastructure for handling different expression types within the language.
+
+4. Why in C you can’t call a function above the code that defines it unless you have an explicit forward declaration ?
+
+   - In C, the compiler processes the source code in a single pass, meaning it reads the code from top to bottom. When it encounters a function call, it needs to know the function's signature (return type, parameter types) and name. If the function has not been declared or defined yet, the compiler would not have this information.
+
+5. What is the lookahead of the scanner ? is it better to have larger or smaller lookaheads ? What is the lookahead of Lox ?
+
+   1. Lookahead in Scanners:
+
+      Meaning: The lookahead of a scanner refers to the number of characters it can examine ahead of its current position without actually consuming them. It aids in making informed decisions about token formation.
+      `peek()` and `peekNext()` are lookaheads of the scanner
+
+   2. Optimal Size:
+
+      Smaller lookaheads (1-2 characters) are generally preferred for efficiency.
+      Larger lookaheads might be necessary for certain language constructs but can impact speed.
+
+   3. Lox's Lookahead
+
+      Lox's scanner uses a lookahead of 1 character. This is sufficient for its lexical grammar, as it doesn't have complex constructs that require extensive lookahead.
+
+6. Say you want to implement Pascal, C, and Fortran compilers, and you want to target x86, ARM, and, SPARC
+
+   1. How many full compilers would you need to write if you wrote each one independenlty ?
+   2. What changes if you decided using an intermediate representation ?
+
+      1. 9 full compilers
+      2. number of full compilers will be 3 full compilers
+
+7. In Lox, If you try to perform an operation on values of the wrong type - say, dividing a number by a string -
+
+   1. When is the error detected ?
+   2. When it is reported ?
+   3. This means Lox's type system is static or dynamic or flexible ?
+      1. the error detected at runtime
+      2. error is reported when the code is executed
+      3. dynamic
+
+8. What is this image trying to say ? give examples...
+   ![](crafting-interpreters.jpg)
+
+   - In a top-down parser, you reach the lowest-precedence expressions first because they may in turn contain subexpressions of higher precedence.
+     Equality is the top of the grammar , it means we start our grammar from it because it has the lowest precedence like we say : if 5 == (5+2) we culc 5+2 first and then we compare it with 5 and like true == !false, !false is a unary it has higher precedence than equality but it comes after it in the grammar. and so on with comparison, addition, and multiplication.
+
+9. ![](mid2.png)
+
+   1. What does this code try to achieve ?
+   2. Why do we need a loop here ? what if we removed the while statement and executed the loop one time only ?
+
+      1. this code implements the grammar of equality , the equality has a lower precedence than comparison , if we found a BANG_EQUAL or EQUAL_EQUAL (!= or ==) (the equality) we just return the comparison expr if we found BANG_EQUAL or EQUAL_EQUAL we store the operator token and the right expr and create new binary expr. 5 == 6 like this its a binary expr the right is 6 and the operator token is == and the expr is the 5. may be look like this 25 + 5 /2 == 25 +3/3.
+
+      2. we need the loop here to match all the operators we have like this 5 == 2 != 3 == 5 , if we used it once we cannot eacute more than one operator.
