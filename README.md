@@ -1493,6 +1493,74 @@ A block is a (possibly empty) series of statements or declarations surrounded by
 
 ### NOTS
 
+1. Lox doesn’t have a conditional operator, so let’s get our if statement on. Our statement grammar gets a new production.
+
+```c
+program → declaration* EOF ;
+declaration → varDecl | statement ;
+statement → exprStmt | ifStmt | printStmt | block ;
+ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+block → "{" declaration* "}" ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
+2. Since else clauses are optional, and there is no explicit delimiter marking the end of the if statement, the grammar is ambiguous when you nest ifs in this way. This classic pitfall of syntax is called the **dangling else** problem.
+
+![dangling else](dangling%20else.jpg)
+
+It is possible to define a context-free grammar that avoids the ambiguity
+directly, but it requires splitting most of the statement rules into pairs, one that
+allows an if with an else and one that doesn’t. It’s annoying.
+
+Instead, most languages and parsers avoid the problem in an ad hoc way. No
+matter what hack they use to get themselves out of the trouble, they always
+choose the same interpretation— **the else is bound to the nearest if that precedes it.**Our parser conveniently does that already.
+
+3. Logical Operators : These aren’t like other binary operators because they **short-circuit**.
+
+4. The two new operators (or , and) are low in the precedence table. Similar to || and && in C, they each have their own precedence with or lower than and. We slot them right between assignment and equality.
+
+```c
+expression → assignment ;
+assignment → IDENTIFIER "=" assignment | logic_or ;
+logic_or → logic_and ( "or" logic_and )* ;
+logic_and → equality ( "and" equality )* ;
+equality → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term → factor ( ( "-" | "+" ) factor )* ;
+factor → unary ( ( "/" | "*" ) unary )* ;
+unary → ( "!" | "-" ) unary | primary ;
+primary → "true" | "false" | "nil" | NUMBER | STRING | "(" expression ")" | IDENTIFIER ;
+```
+
+5. While Loops
+
+```c
+program → declaration* EOF ;
+declaration → varDecl | statement ;
+statement → exprStmt | ifStmt | printStmt | whileStmt | block ;
+whileStmt → "while" "(" expression ")" statement ;
+ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+block → "{" declaration* "}" ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
+6. For Loops
+
+```c
+program → declaration* EOF ;
+declaration → varDecl | statement ;
+statement → exprStmt | forStmt | ifStmt | printStmt | whileStmt | block ;
+forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+whileStmt → "while" "(" expression ")" statement ;
+ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+block → "{" declaration* "}" ;
+exprStmt → expression ";" ;
+printStmt → "print" expression ";" ;
+```
+
 ## Chapter 10 Functions
 
 ### NOTS
