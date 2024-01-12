@@ -8,6 +8,7 @@ _This compilation highlights key points from each chapter that I deem essential 
 
 - [Crafting Interpreters book](https://craftinginterpreters.com)
 - [Crafting Interpreters Repo](https://github.com/munificent/craftinginterpreters)
+- [Head First Design Patterns](https://www.oreilly.com/library/view/head-first-design/9781492077992/)
 
 ## Table of Contents
 
@@ -15,6 +16,7 @@ _This compilation highlights key points from each chapter that I deem essential 
 - [Chapter 2: A Map of the Territory](#chapter-2-a-map-of-the-territory)
 - [Chapter 3: The Lox Language](#chapter-3-the-lox-language)
 - [Chapter 4: Scanning](#chapter-4-scanning)
+- [Visitor Design Pattern](#visitor-design-pattern)
 - [Chapter 5: Representing Code](#chapter-5-representing-code)
 - [Chapter 6: Parsing Expressions](#chapter-6-parsing-expressions)
 - [Chapter 7: Evaluating Expressions](#chapter-7-evaluating-expressions)
@@ -260,51 +262,51 @@ _This compilation highlights key points from each chapter that I deem essential 
     - Source Languages: C, Fortran, Pascal
     - Target Architectures: x86, ARM, SPARC
 
-      #### Without Intermediate Representation (IR)
+      ### Without Intermediate Representation (IR)
 
-      1. C
+      1. **C**
 
-      - x86
-      - ARM
-      - SPARC
+         - x86
+         - ARM
+         - SPARC
 
-      2. Fortran
+      2. **Fortran**
 
-      - x86
-      - ARM
-      - SPARC
+         - x86
+         - ARM
+         - SPARC
 
-      3. Pascal
+      3. **Pascal**
 
-      - x86
-      - ARM
-      - SPARC
+         - x86
+         - ARM
+         - SPARC
 
       > 9 full compilers
 
-      #### With Intermediate Representation (IR)
+      ## With Intermediate Representation (IR)
 
-      ##### Front-end
+      #### Front-end
 
-      1. C
+      1. **C**
 
-      - IR
+         - IR
 
-      2. Fortran
+      2. **Fortran**
 
-      - IR
+         - IR
 
-      3. Pascal
+      3. **Pascal**
 
-      - IR
+         - IR
 
-      ##### Back-end
+      #### Back-end
 
-      4. IR
+      4. **IR**
 
-      - x86
-      - ARM
-      - SPARC
+         - x86
+         - ARM
+         - SPARC
 
       > 3 full compilers
 
@@ -980,6 +982,12 @@ case '/':
 		}
 	}
 ```
+
+## Visitor Design Pattern
+
+![](Visitor%20Design%20Pattern_page-0001.jpg)
+
+![](Visitor%20Design%20Pattern_page-0002.jpg)
 
 ## Chapter 5 Representing Code
 
@@ -1805,6 +1813,251 @@ With the resolver in place, the second invocation of `showA()` consistently outp
    Let’s see what our resolver is good for. Each time it visits a variable, it tells the interpreter how many scopes there are between the current scope and the scope where the variable is defined. At runtime, this corresponds exactly to the number of environments between the current one and the enclosing one where the interpreter can find the variable’s value.
 
 ## Chapter 12: Classes
+
+1. Class Declarations
+
+   - A class statement introduces a new name, so it lives in the declaration grammar rule.
+
+   ```c
+   program → declaration* EOF ;
+   declaration → classDecl | funDecl | varDecl | statement ;
+   classDecl → "class" IDENTIFIER "{" function* "}" ;
+   funDecl → "fun" function ;
+   function → IDENTIFIER "(" parameters? ")" block ;
+   parameters → IDENTIFIER ( "," IDENTIFIER )* ;
+   statement → exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block ;
+   returnStmt → "return" expression? ";" ;
+   forStmt → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+   whileStmt → "while" "(" expression ")" statement ;
+   ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+   block → "{" declaration* "}" ;
+   exprStmt → expression ";" ;
+   printStmt → "print" expression ";" ;
+   ```
+
+   - Unlike function declarations, methods don’t have a leading _fun_ keyword. Each method is a name, parameter list, and body. Here’s an example:
+
+   ```js
+    class Breakfast {
+      cook() {
+      print "Eggs a-fryin'!";
+    }
+      serve(who) {
+      print "Enjoy your breakfast, " + who + ".";
+    }
+   }
+   ```
+
+2. We’ll use call expressions on class objects to create new instances.
+
+   ```js
+   class Bagel {}
+   var bagel = Bagel();
+   print bagel; // Prints "Bagel instance".
+   ```
+
+![](ch12f1.jpg)
+
+3.  Allowing code outside of the class to directly modify an object’s fields goes against the object-oriented credo that a class encapsulates state.
+
+    - java example
+
+      ```java
+        public class EncapsulationExample {
+
+        public String publicField; // Avoid making fields public, use private instead
+        private int privateField;
+
+        public EncapsulationExample(String publicField, int privateField) {
+            this.publicField = publicField;
+            this.privateField = privateField;
+        }
+
+        public int getPrivateField() {
+            return privateField;
+        }
+
+        public void setPrivateField(int privateField) {
+            this.privateField = privateField;
+        }
+      }
+
+        public class Main {
+
+          public static void main(String[] args) {
+              EncapsulationExample example = new EncapsulationExample("Public", 42);
+
+              // Directly modifying public field (violating encapsulation)
+              example.publicField = "Modified Public";
+
+              // Accessing and modifying private field using getter and setter (encapsulation maintained)
+              int privateFieldValue = example.getPrivateField();
+              privateFieldValue = privateFieldValue * 2;
+              example.setPrivateField(privateFieldValue);
+
+              // Displaying the results
+              System.out.println("Public Field: " + example.publicField);
+              System.out.println("Private Field: " + example.getPrivateField());
+          }
+      }
+      ```
+
+4.  Methods on the instance’s class can access and modify properties, but so can outside code. Properties are accessed using a . syntax.
+
+    ```js
+    someObject.someProperty;
+    ```
+
+    - That dot has the same precedence as the parentheses in a function call expression so we slot it into the grammar by replacing the existing _call_ rule with:
+
+      ```c
+      expression → assignment ;
+      assignment → IDENTIFIER "=" assignment | logic_or ;
+      logic_or → logic_and ( "or" logic_and )* ;
+      logic_and → equality ( "and" equality )* ;
+      equality → comparison ( ( "!=" | "==" ) comparison )* ;
+      comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+      term → factor ( ( "-" | "+" ) factor )* ;
+      factor → unary ( ( "/" | "*" ) unary )* ;
+      unary → ( "!" | "-" ) unary | call ;
+      call → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
+      arguments → expression ( "," expression )* ;
+      primary → "true" | "false" | "nil" | NUMBER | STRING | "(" expression ")" | IDENTIFIER ;
+      ```
+
+      - After a primary expression, we allow a series of any mixture of parenthesized calls and dotted property accesses. “Property access” is a mouthful, so from here on out, we’ll call these “get expressions”.
+
+      - In Lox, only instances of classes have properties.
+
+5.  what happens if the instance doesn’t have a property with the given name -> we’ll make it a runtime error.
+
+6.  “properties” and “fields” there is a subtle difference between the two.
+
+    - **Fields** are named bits of state stored directly in an instance.
+    - **Properties** are the named things, that a get expression may return.
+      Every field is a property, but not every property is a field.
+
+      ```js
+      class Person {
+        sayName() {
+          print this.name;
+          }
+        }
+        var jane = Person();
+        jane.name = "Jane";
+        var method = jane.sayName;
+        method(); // Jane
+      ```
+
+      `this.name` suggests that `name` is a field of the `Person` class.
+      `name` is also a property.
+
+      - another example
+
+      ```js
+      class Person {
+        // Computed Property
+        fullName() {
+          return "Full Name: " + this.name;
+        }
+
+        sayName() {
+          print(this.name);
+        }
+      }
+
+      var jane = Person();
+      jane.name = "Jane";
+
+      var method = jane.sayName;
+      method(); // Jane
+
+      // Accessing the computed property
+      print(jane.fullName()); // Full Name: Jane
+      ```
+
+7.  Set expressions: Setters use the same syntax as getters, except they appear on the left side of an assignment.
+
+    ```js
+    someObject.someProperty = value;
+    ```
+
+    - In grammar land, we extend the rule for assignment to allow dotted identifiers on the left-hand side.
+
+    ```c
+
+      expression → assignment ;
+      assignment → ( call "." )? IDENTIFIER "=" assignment | logic_or;
+      logic_or → logic_and ( "or" logic_and )_ ;
+      logic_and → equality ( "and" equality )_ ;
+      equality → comparison ( ( "!=" | "==" ) comparison )_ ;
+      comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )_ ;
+      term → factor ( ( "-" | "+" ) factor )_ ;
+      factor → unary ( ( "/" | "_" ) unary )_ ;
+      unary → ( "!" | "-" ) unary | call ;
+      call → primary ( "(" arguments? ")" | "." IDENTIFIER )_ ;
+      arguments → expression ( "," expression )\* ;
+      primary → "true" | "false" | "nil" | NUMBER | STRING | "(" expression ")" | IDENTIFIER ;
+
+    ```
+
+    - Unlike getters, setters don’t chain. However, the reference to call allows any high precedence expression before the last dot, including any number of getters, as in:
+
+    ![](ch12f2.jpg)
+
+    **Note** here that only the last part, the .meat is the setter. The .omelette and .filling parts are both get expressions.
+
+8.  Methods on Classes
+
+    - This program creates an instance and then stores a function in a field on it.Then it calls that function using the same syntax as a method call.
+
+    ```js
+      class Box {
+        namefun () {
+          this.name;
+        }
+      }
+
+      fun notMethod(argument) {
+        print "called function with " + argument;
+      }
+
+      var box = Box();
+      box.function = notMethod;
+      box.function("argument"); // called function with argument
+
+      box.name = "boxname";
+
+      print (box.name); // boxname
+    ```
+
+    ```js
+      class Person {
+        sayName() {
+          print this.name;
+        }
+      }
+      var jane = Person();
+      jane.name = "Jane";
+      jane.sayName(); // jane
+      var bill = Person();
+      bill.name = "Bill";
+      bill.sayName(); // Bill
+
+      bill.sayName = jane.sayName;
+      bill.sayName(); // Jane
+    ```
+
+    ```js
+      class Egotist {
+        speak() {
+          print this;
+        }
+      }
+
+      var method = Egotist().speak;
+      method(); // Egotist instance
+    ```
 
 ## Chapter 13: Inheritance
 
